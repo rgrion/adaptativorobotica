@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafio 01 – Robótica e Tinkercad</title>
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#ffffff; --primary:#1976d2;
+      --primary-hover:#1565c0; --accent:#64b5f6; --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:linear-gradient(135deg,#e3f2fd,#bbdefb);margin:0;padding:20px;color:var(--text)}
+    .container{background:var(--card);max-width:900px;margin:auto;padding:30px;border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)}
+    h2{color:var(--primary);margin-bottom:10px}
+    h3{margin-top:20px;color:#0f3660}
+    p{line-height:1.6}
+    ul{padding-left:20px}
+    .info{background:#f7faff;border-left:4px solid var(--accent);padding:12px;border-radius:6px;margin:10px 0}
+    .pergunta{margin:25px 0;padding:15px;background:#f7faff;border-left:4px solid var(--accent);border-radius:6px}
+    label{display:block;margin:6px 0}
+    button{background:var(--primary);color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:16px;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:15px;color:#d32f2f;font-weight:700}
+    /* loading mínima (igual ao padrão) */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+    @media (max-width:600px){.container{padding:20px}h2{font-size:1.25em}button{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🧠 Desafio 01 – Avançado Robótica e Tinkercad</h2>
+
+    <h3>📘 Robótica: Automatização, Inteligência e Limites</h3>
+    <p>A robótica vai além da simples montagem de circuitos: envolve tomada de decisão automática, integração com sensores e ambiente, e adaptação ao contexto.</p>
+
+    <div class="info">
+      <b>Classificação quanto à autonomia:</b>
+      <ul>
+        <li><b>Robôs autônomos</b>: decidem com base em sensores, sem comandos externos contínuos.</li>
+        <li><b>Robôs semiautônomos</b>: executam tarefas com alguma intervenção humana.</li>
+        <li><b>Sistemas remotos</b>: controlados diretamente por humanos (ex.: drones).</li>
+      </ul>
+    </div>
+
+    <p>Por meio da modelagem computacional, é possível simular o comportamento de robôs antes da montagem física. Plataformas como o <b>Tinkercad</b> permitem antecipar problemas, testar códigos e prever falhas de lógica ou estrutura.</p>
+
+    <div class="info">
+      <b>Com a simulação, você desenvolve:</b>
+      <ul>
+        <li><b>Lógica digital</b>: estados HIGH e LOW;</li>
+        <li><b>Compreensão do fluxo de energia</b> em circuitos;</li>
+        <li><b>Entradas e saídas</b> em sistemas embarcados (sensores e atuadores).</li>
+      </ul>
+    </div>
+
+    <p>No contexto educacional, o Tinkercad é uma ferramenta poderosa para visualizar abstrações, validar hipóteses de montagem e experimentar com segurança, sem risco de danificar componentes.</p>
+
+    <hr>
+
+    <h2>📝 Questão do Desafio 01</h2>
+    <form id="quizForm">
+      <div class="pergunta">
+        <p><b>1.</b> O principal papel da simulação no Tinkercad, no contexto da robótica educacional, é:</p>
+        <label><input type="radio" name="q1" value="a"> a) Substituir completamente a necessidade de montagem física de robôs</label>
+        <label><input type="radio" name="q1" value="b"> b) Testar apenas a parte estética dos projetos antes da montagem</label>
+        <label><input type="radio" name="q1" value="c"> c) Permitir a validação lógica e funcional dos circuitos e programas antes da aplicação prática</label>
+        <label><input type="radio" name="q1" value="d"> d) Avaliar a durabilidade dos componentes em uso prolongado</label>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Resposta</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none; margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+  <script>
+  (function(){
+    // ===== Estado =====
+    let enviando = false;
+    let progTimer = null;
+    let proximaPaginaDecidida = null; // rota devolvida pelo backend
+
+    // ===== Gabarito =====
+    const GABARITO = { q1:'c' };
+
+    // ===== Helpers =====
+    function getChecked(name){
+      const nodes = document.getElementsByName(name);
+      for (const n of nodes) if (n.checked) return n.value;
+      return null;
+    }
+    function startLoading(){
+      const bar = document.getElementById('loadingBar');
+      const inner = document.getElementById('loadingInner');
+      if(!bar || !inner) return;
+      bar.style.display = 'block';
+      inner.style.width = '0%';
+      let pct = 0;
+      progTimer = setInterval(()=>{
+        pct = Math.min(100, pct + Math.random()*12 + 3);
+        inner.style.width = pct + '%';
+        if(pct >= 95){ clearInterval(progTimer); progTimer = null; }
+      }, 180);
+    }
+    function stopLoading(){
+      const inner = document.getElementById('loadingInner');
+      if(progTimer){ clearInterval(progTimer); progTimer = null; }
+      if(inner) inner.style.width = '100%';
+    }
+    function setMsg(t){
+      const m = document.getElementById('mensagem');
+      if (m) m.textContent = t || '';
+    }
+
+    function renderFeedback(resps){
+      const fb = document.getElementById('feedback');
+      if(!fb) return;
+      const marcada = resps.q1;
+      const correta = GABARITO.q1;
+      const ok = marcada === correta;
+      const bloco = `
+        <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+          <b>1.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+          <small>Sua: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+        </div>`;
+      fb.innerHTML = `<h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>${bloco}`;
+      fb.style.display = 'block';
+    }
+
+    // ===== “Ir para o próximo” usando o MESMO botão =====
+    function irParaProximo(){
+      if(!proximaPaginaDecidida){ setMsg('Aguarde o salvamento para continuar...'); return; }
+      const btn = document.getElementById('btnEnviar');
+      if (btn){ btn.disabled = true; btn.textContent = 'abrindo...'; }
+      google.script.run
+        .withSuccessHandler(function(html){
+          document.open(); document.write(html); document.close();
+        })
+        .withFailureHandler(function(e){
+          console.error('[DESAFIO01] incluir falhou:', e);
+          setMsg('Falha ao abrir a próxima página.');
+          if (btn){ btn.disabled = false; btn.textContent = 'Ir para o próximo'; }
+        })
+        .incluir(proximaPaginaDecidida);
+    }
+
+    // ===== Enviar (primeiro clique) =====
+    function enviar(){
+      if (enviando) return;
+      enviando = true;
+
+      const btn = document.getElementById('btnEnviar');
+      if (btn){ btn.disabled = true; btn.textContent = 'Enviando...'; }
+      setMsg(''); document.body.style.cursor = 'wait';
+
+      const r = getChecked('q1');
+      if(!r){
+        setMsg('❗ Por favor, selecione uma alternativa.');
+        if (btn){ btn.disabled = false; btn.textContent = 'Enviar Resposta'; }
+        document.body.style.cursor = 'default';
+        enviando = false; return;
+      }
+
+      const codigo = sessionStorage.getItem('codigo');
+      if(!/^\d{5}$/.test(String(codigo||''))){
+        setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+        if (btn){ btn.disabled = false; btn.textContent = 'Enviar Resposta'; }
+        document.body.style.cursor = 'default';
+        enviando = false; return;
+      }
+
+      // 1) feedback imediato
+      renderFeedback({ q1:r });
+
+      // 2) salva no backend e pega rota (sem navegar ainda)
+      const pacote = [codigo, r];
+      startLoading();
+      google.script.run
+        .withSuccessHandler(function(proxima){
+          stopLoading();
+          proximaPaginaDecidida = String(proxima||'').replace(/\.html?$/,'') || 'topico02';
+          // transforma o MESMO botão em “Ir para o próximo”
+          if (btn){
+            btn.disabled = false;
+            btn.textContent = 'Ir para o próximo';
+            btn.onclick = irParaProximo;
+          }
+          document.body.style.cursor = 'default';
+          enviando = false;
+        })
+        .withFailureHandler(function(e){
+          stopLoading();
+          console.error('[DESAFIO01] corrigirDesafio01 falhou:', e);
+          setMsg('Não foi possível enviar sua resposta agora. Tente novamente.');
+          if (btn){
+            btn.disabled = false;
+            btn.textContent = 'Enviar Resposta';
+            btn.onclick = enviar;
+          }
+          document.body.style.cursor = 'default';
+          enviando = false;
+        })
+        .corrigirDesafio01(pacote);
+    }
+
+    // expõe o handler inicial
+    window.enviar = enviar;
+
+    // Enter envia
+    window.addEventListener('keydown', e => { if(e.key==='Enter') enviar(); });
+
+    // opcional: helper goTo()
+    function goTo(page){
+      const base = window.location.href.split('?')[0];
+      window.location.replace(`${base}?p=${String(page).replace(/\.html?$/,'')}&ts=${Date.now()}`);
+    }
+    window.goTo = goTo;
+  })();
+  </script>
+</body>
+</html>

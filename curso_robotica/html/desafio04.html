@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafio 04 – Controle de Motor com Ponte H</title>
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#ffffff; --primary:#1976d2;
+      --primary-hover:#1565c0; --accent:#64b5f6; --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:linear-gradient(135deg,#e3f2fd,#bbdefb);margin:0;padding:20px;color:var(--text)}
+    .container{background:var(--card);max-width:900px;margin:auto;padding:30px;border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)}
+    h2{color:var(--primary);margin-bottom:10px}
+    h3{margin-top:20px;color:#0f3660}
+    p{line-height:1.6}
+    ul{padding-left:20px}
+    .info{background:#f7faff;border-left:4px solid var(--accent);padding:12px;border-radius:6px;margin:10px 0}
+    table{width:100%;border-collapse:collapse;margin:10px 0 16px}
+    th,td{border:1px solid #dde7f3;padding:10px;text-align:center}
+    th{background:#eef5ff}
+    .pergunta{margin:25px 0;padding:15px;background:#f7faff;border-left:4px solid var(--accent);border-radius:6px}
+    label{display:block;margin:6px 0}
+    button{background:var(--primary);color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:16px;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:15px;color:#d32f2f;font-weight:700}
+    @media (max-width:600px){.container{padding:20px}h2{font-size:1.25em}button{width:100%}}
+    /* Barra de carregamento */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🧠 Desafio 04 – Avançado com Controle de Motor com Ponte H</h2>
+
+    <h3>⚙️ O que é PWM e por que ele é essencial?</h3>
+    <p>Motores DC não trabalham apenas em <i>liga/desliga</i>. Para controlar <b>velocidade</b>, usamos <b>PWM</b> (Modulação por Largura de Pulso): ligar/desligar rapidamente um pino digital.</p>
+    <div class="info">
+      <ul>
+        <li><b>Duty cycle 100%</b>: motor na velocidade máxima.</li>
+        <li><b>Duty cycle 50%</b>: velocidade média.</li>
+        <li><b>Duty cycle 0%</b>: motor desligado.</li>
+      </ul>
+      <p>É mais eficiente do que “reduzir tensão” com resistores.</p>
+    </div>
+
+    <h3>🔀 Como a ponte H (L298N) controla o sentido?</h3>
+    <p>Com quatro transistores, a Ponte H inverte a polaridade no motor. No L298N, usamos dois pinos de direção (<b>IN1</b> e <b>IN2</b>) e um pino de velocidade (<b>ENA</b>, via PWM):</p>
+
+    <table>
+      <thead>
+        <tr><th>IN1</th><th>IN2</th><th>Ação no motor</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>LOW</td><td>LOW</td><td>Parado</td></tr>
+        <tr><td>HIGH</td><td>LOW</td><td>Gira para um lado</td></tr>
+        <tr><td>LOW</td><td>HIGH</td><td>Gira para o outro</td></tr>
+        <tr><td>HIGH</td><td>HIGH</td><td>Parado / freio</td></tr>
+      </tbody>
+    </table>
+
+    <h3>🔋 Alimentação com fonte externa</h3>
+    <p>Motores consomem mais corrente do que o Arduino fornece pela USB. Ligue:</p>
+    <div class="info">
+      <ul>
+        <li><b>VCC</b> da ponte H → bateria 9–12V (motor);</li>
+        <li><b>GND comum</b> entre Arduino, ponte H e fonte externa.</li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <h2>📝 Questão do Desafio 04</h2>
+    <form id="quizForm">
+      <div class="pergunta">
+        <p><b>1.</b> Em teste com motor DC + L298N, o motor gira apenas na velocidade máxima e ignora os valores de PWM no pino ENA. Qual a causa mais provável?</p>
+        <label><input type="radio" name="q1" value="a"> a) O motor não é compatível com variação de velocidade</label>
+        <label><input type="radio" name="q1" value="b"> b) O resistor pull-down está mal dimensionado</label>
+        <label><input type="radio" name="q1" value="c"> c) O pino ENA foi ligado diretamente ao 5V, em vez de a um pino PWM do Arduino</label>
+        <label><input type="radio" name="q1" value="d"> d) O sensor ultrassônico está interferindo no sinal lógico da ponte H</label>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Resposta</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  // Segurança: captura erros globais
+  window.addEventListener('error', function(e){
+    const m = document.getElementById('mensagem');
+    if(m) m.textContent = 'Erro JS: ' + e.message;
+    console.error('[DESAFIO04] JS Error:', e.message, e.filename + ':' + e.lineno);
+  });
+
+  let enviando = false;
+  let progTimer = null;
+  let proximaPaginaDecidida = null;
+
+  function getChecked(name){
+    const nodes = document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function startLoading(){
+    const bar = document.getElementById('loadingBar');
+    const inner = document.getElementById('loadingInner');
+    if(!bar || !inner) return;
+    bar.style.display = 'block';
+    inner.style.width = '0%';
+    let pct = 0;
+    progTimer = setInterval(()=>{
+      pct = Math.min(100, pct + Math.random()*12 + 3);
+      inner.style.width = pct + '%';
+      if(pct >= 95){ clearInterval(progTimer); progTimer = null; }
+    }, 180);
+  }
+  function stopLoading(){
+    const inner = document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer = null; }
+    if(inner) inner.style.width = '100%';
+  }
+  function setMsg(txt){
+    const el = document.getElementById('mensagem');
+    if(el) el.textContent = txt || '';
+  }
+
+  // Gabarito local
+  const GABARITO = { q1:'c' };
+
+  function renderFeedback(resps){
+    const fb = document.getElementById('feedback');
+    if(!fb) return;
+    const marcada = resps.q1;
+    const correta = GABARITO.q1;
+    const ok = marcada === correta;
+
+    fb.innerHTML = `
+      <h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>
+      <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+        <b>1.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+        <small>Sua resposta: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+      </div>
+    `;
+    fb.style.display = 'block';
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){
+      setMsg('Aguarde o salvamento para continuar…');
+      return;
+    }
+    const btn = document.getElementById('btnEnviar');
+    if(btn){ btn.disabled = true; btn.textContent = 'Abrindo…'; }
+    document.body.style.cursor = 'wait';
+
+    google.script.run
+      .withSuccessHandler(function(html){
+        document.open(); document.write(html); document.close();
+      })
+      .withFailureHandler(function(err2){
+        console.error('[DESAFIO04] incluir falhou:', err2);
+        setMsg('Falha ao abrir a próxima página. Tente novamente.');
+        if(btn){ btn.disabled = false; btn.textContent = 'Ir para o próximo'; btn.onclick = irParaProximo; }
+        document.body.style.cursor = 'default';
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  function enviar(){
+    if(enviando) return;
+    enviando = true;
+
+    const btn = document.getElementById('btnEnviar');
+    if(btn){ btn.disabled = true; btn.textContent = 'Enviando...'; }
+    setMsg('');
+    document.body.style.cursor = 'wait';
+
+    const resposta = getChecked('q1');
+    if(!resposta){
+      setMsg('❗ Por favor, selecione uma alternativa.');
+      if(btn){ btn.disabled = false; btn.textContent = 'Enviar Resposta'; btn.onclick = enviar; }
+      document.body.style.cursor = 'default';
+      enviando = false;
+      return;
+    }
+
+    const codigo = sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo || ''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled = false; btn.textContent = 'Enviar Resposta'; btn.onclick = enviar; }
+      document.body.style.cursor = 'default';
+      enviando = false;
+      return;
+    }
+
+    // 1) gabarito
+    renderFeedback({ q1: resposta });
+
+    // 2) salva e define rota
+    const pacote = [codigo, resposta];
+    startLoading();
+
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        proximaPaginaDecidida = String(proxima || '').replace(/\.html?$/i,'') || 'topico05';
+        if(btn){
+          btn.disabled = false;
+          btn.textContent = 'Ir para o próximo';
+          btn.onclick = irParaProximo;           /* <- ajuste essencial */
+        }
+        document.body.style.cursor = 'default';
+        enviando = false;
+      })
+      .withFailureHandler(function(err){
+        stopLoading();
+        console.error('[DESAFIO04] corrigirDesafio04 falhou:', err);
+        setMsg('Não foi possível enviar sua resposta agora. Tente novamente.');
+        if(btn){
+          btn.disabled = false;
+          btn.textContent = 'Enviar Resposta';
+          btn.onclick = enviar;                  /* volta ao fluxo original */
+        }
+        document.body.style.cursor = 'default';
+        enviando = false;
+      })
+      .corrigirDesafio04(pacote);
+  }
+
+  // expõe handlers no escopo global (como no Tópico 01)
+  window.enviar = enviar;
+  window.irParaProximo = irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') enviar();
+  });
+
+  // helper opcional
+  function goTo(page){
+    const base = window.location.href.split('?')[0];
+    window.location.replace(`${base}?p=${String(page).replace(/\.html?$/,'')}&ts=${Date.now()}`);
+  }
+  window.goTo = goTo;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafio 02 – Circuito com LED</title>
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#ffffff; --primary:#1976d2;
+      --primary-hover:#1565c0; --accent:#64b5f6; --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:linear-gradient(135deg,#e3f2fd,#bbdefb);margin:0;padding:20px;color:var(--text)}
+    .container{background:var(--card);max-width:900px;margin:auto;padding:30px;border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)}
+    h2{color:var(--primary);margin-bottom:10px}
+    h3{margin-top:20px;color:#0f3660}
+    p{line-height:1.6}
+    ul{padding-left:20px}
+    table{width:100%;border-collapse:collapse;margin:10px 0 16px}
+    th,td{border:1px solid #dde7f3;padding:10px;text-align:center}
+    th{background:#eef5ff}
+    .info{background:#f7faff;border-left:4px solid var(--accent);padding:12px;border-radius:6px;margin:10px 0}
+    .pergunta{margin:25px 0;padding:15px;background:#f7faff;border-left:4px solid var(--accent);border-radius:6px}
+    label{display:block;margin:6px 0}
+    button{background:var(--primary);color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:16px;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:15px;color:#d32f2f;font-weight:700}
+    @media (max-width:600px){.container{padding:20px}h2{font-size:1.25em}button{width:100%}}
+    /* Barra de carregamento */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🧠 Desafio 02 – Avançado com Circuito com LED</h2>
+
+    <h3>🔍 Entendendo a eletricidade no circuito com LED</h3>
+    <p>Para além da montagem prática, compreender como e por que um circuito com LED funciona exige domínio de três conceitos fundamentais da eletrônica:</p>
+
+    <div class="info">
+      <ul>
+        <li><b>⚡ Corrente elétrica (I):</b> fluxo de elétrons no circuito. O LED só acende se houver corrente suficiente.</li>
+        <li><b>🔋 Tensão (V):</b> “força” que impulsiona os elétrons. Tensão muito baixa não acende; muito alta pode queimar.</li>
+        <li><b>🔧 Resistência (R):</b> limita a corrente. O resistor em série protege o LED contra sobrecorrente.</li>
+      </ul>
+    </div>
+
+    <h3>📗 Polaridade e funcionamento do LED</h3>
+    <p>O LED é um componente <b>polarizado</b>, conduzindo corrente em apenas um sentido:</p>
+
+    <table>
+      <thead>
+        <tr><th>Terminal</th><th>Função</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Ânodo (+)</td><td>Entrada de corrente (vai ao positivo)</td></tr>
+        <tr><td>Cátodo (–)</td><td>Saída de corrente (vai ao GND)</td></tr>
+      </tbody>
+    </table>
+
+    <p>Se os terminais forem invertidos, o LED não queima, mas <b>não conduz</b> — e, portanto, <b>não acende</b>.</p>
+
+    <hr>
+
+    <h2>📝 Questão do Desafio 02</h2>
+    <form id="quizForm">
+      <div class="pergunta">
+        <p><b>1.</b> Em um circuito com LED e resistor de 220&nbsp;Ω ligados a 5&nbsp;V, o LED não acende. Qual explicação técnica correta, relacionada à polaridade e corrente?</p>
+        <label><input type="radio" name="q1" value="a"> a) O resistor é muito pequeno, permitindo corrente demais</label>
+        <label><input type="radio" name="q1" value="b"> b) A fonte está fornecendo tensão variável</label>
+        <label><input type="radio" name="q1" value="c"> c) A corrente não depende da polaridade do LED; o problema é no Arduino</label>
+        <label><input type="radio" name="q1" value="d"> d) O LED foi conectado com os terminais invertidos, impedindo a condução da corrente</label>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Resposta</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  // ===== Estado =====
+  let enviando=false, progTimer=null, proximaPaginaDecidida=null;
+
+  // Gabarito do desafio (q1)
+  const GAB = { q1:'d' };
+
+  // ===== Helpers =====
+  function setMsg(t){const el=document.getElementById('mensagem'); if(el) el.textContent=t||'';}
+  function getChecked(name){
+    const nodes=document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner) return;
+    bar.style.display='block'; inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{
+      pct=Math.min(100,pct+Math.random()*12+3);
+      inner.style.width=pct+'%';
+      if(pct>=95){ clearInterval(progTimer); progTimer=null; }
+    },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(inner) inner.style.width='100%';
+  }
+  function renderFeedback(resps){
+    const fb=document.getElementById('feedback');
+    if(!fb) return;
+    const marcada=resps.q1, correta=GAB.q1, ok=marcada===correta;
+    fb.innerHTML = `
+      <h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>
+      <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+        <b>1.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+        <small>Sua: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+      </div>`;
+    fb.style.display='block';
+  }
+
+  // ===== Fluxo principal =====
+  function enviar(){
+    if(enviando) return;
+    enviando=true;
+
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
+    setMsg('');
+
+    // valida
+    const resposta=getChecked('q1');
+    if(!resposta){
+      setMsg('❗ Por favor, selecione uma alternativa.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Resposta'; }
+      enviando=false; return;
+    }
+
+    const codigo=sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Resposta'; }
+      enviando=false; return;
+    }
+
+    // feedback imediato
+    renderFeedback({q1:resposta});
+
+    // salva/backend decide próxima
+    const pacote=[codigo, resposta];
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        proximaPaginaDecidida = String(proxima||'').replace(/\.html?$/i,'') || 'topico03';
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; btn.onclick=irParaProximo; }
+        enviando=false;
+      })
+      .withFailureHandler(function(e){
+        stopLoading(); console.error(e);
+        setMsg('Não foi possível enviar sua resposta agora. Tente novamente.');
+        if(btn){ btn.disabled=false; btn.textContent='Enviar Resposta'; btn.onclick=enviar; }
+        enviando=false;
+      })
+      .corrigirDesafio02(pacote);
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){ setMsg('Aguarde o salvamento.'); return; }
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Abrindo...'; }
+    google.script.run
+      .withSuccessHandler(function(html){ document.open(); document.write(html); document.close(); })
+      .withFailureHandler(function(e){
+        console.error(e); setMsg('Falha ao abrir a próxima página.');
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; }
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  // expõe handlers
+  window.enviar=enviar;
+  window.irParaProximo=irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', e=>{ if(e.key==='Enter') enviar(); });
+})();
+</script>
+</body>
+</html>

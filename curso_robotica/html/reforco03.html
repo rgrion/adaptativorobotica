@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{
+      --bg: #e3f2fd;
+      --card: #ffffff;
+      --primary: #1976d2;
+      --primary-hover:#1565c0;
+      --accent:#64b5f6;
+      --muted:#f4f7fb;
+      --text:#0d1b2a;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+      background: var(--bg);
+      padding: 20px;
+      margin: 0;
+      color: var(--text);
+    }
+    .container {
+      background: var(--card);
+      max-width: 900px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(13,27,42,0.08);
+    }
+    h2 { color: var(--primary); margin-bottom: 10px; }
+    h3 { margin-top: 20px; color: #0f3660; }
+    pre {
+      background: var(--muted);
+      padding: 12px;
+      border-left: 4px solid var(--accent);
+      overflow-x: auto;
+      border-radius: 6px;
+    }
+    ul { padding-left: 20px; }
+    .pergunta {
+      margin: 25px 0;
+      padding: 15px;
+      background: #f7faff;
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+    }
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: var(--primary-hover); }
+    input[type="radio"] { margin-right: 8px; }
+    #mensagem { margin-top: 15px; color: #d32f2f; font-weight: bold; }
+    @media (max-width: 600px) {
+      .container { padding: 20px; }
+      h2 { font-size: 1.25em; }
+      button { width: 100%; }
+    }
+    /* Barra de carregamento */
+    .loadingbar { display:none; width:100%; background:#e0e0e0; border-radius:8px; overflow:hidden; height:10px; margin-top:12px }
+    .loadingbar>.inner { width:0%; height:100%; background:var(--primary); transition:width .2s linear }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Reforço -->
+    <h2>🔁 Reforço 03 – Revisando Buzzer e Botão</h2>
+
+    <p>✨ Aprender leva tempo — e tudo bem! Buzzer e botão são dois componentes básicos, mas com eles já conseguimos criar alarmes, sons de alerta e comandos interativos. A prática com eles abre as portas para sistemas mais complexos no seu robô.</p>
+
+    <h3>📌 Pontos principais para lembrar</h3>
+    <p><b>🔊 Buzzer ativo:</b> emite som fixo quando recebe energia. “+” no pino digital (ex.: 8) e “–” no GND.</p>
+    <p><b>🖲️ Botão (push button):</b> é uma entrada digital. Ao pressionar, fecha o circuito e envia sinal ao Arduino.</p>
+    <p><b>🔁 Resistor pull-down (10kΩ):</b> mantém o pino em LOW quando o botão não está pressionado, evitando leituras falsas.</p>
+
+    <hr>
+
+    <!-- Quiz -->
+    <h2>📝 Quiz do Reforço 03</h2>
+    <form id="quizForm">
+
+      <div class="pergunta">
+        <p><b>1.</b> O que o buzzer faz quando recebe sinal do Arduino?</p>
+        <label><input type="radio" name="q1" value="a"> a) Pisca uma luz</label><br>
+        <label><input type="radio" name="q1" value="b"> b) Emite um som</label><br>
+        <label><input type="radio" name="q1" value="c"> c) Gira como um motor</label><br>
+        <label><input type="radio" name="q1" value="d"> d) Mostra uma mensagem</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>2.</b> Por que usamos o resistor de 10kΩ com o botão?</p>
+        <label><input type="radio" name="q2" value="a"> a) Para aumentar a tensão</label><br>
+        <label><input type="radio" name="q2" value="b"> b) Para diminuir o som do buzzer</label><br>
+        <label><input type="radio" name="q2" value="c"> c) Para economizar energia</label><br>
+        <label><input type="radio" name="q2" value="d"> d) Para evitar que o botão envie sinal sozinho</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>3.</b> Como testamos o circuito real com Arduino após simular?</p>
+        <label><input type="radio" name="q3" value="a"> a) Ligamos o buzzer direto na tomada</label><br>
+        <label><input type="radio" name="q3" value="b"> b) Enviamos o código do Tinkercad por bluetooth</label><br>
+        <label><input type="radio" name="q3" value="c"> c) Montamos o circuito físico e colamos o código no Arduino IDE</label><br>
+        <label><input type="radio" name="q3" value="d"> d) Criamos um vídeo explicativo</label>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Respostas</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  // ===== Estado =====
+  let enviando=false, progTimer=null, proximaPaginaDecidida=null;
+
+  // Gabarito do Reforço 03
+  const GAB = { q1:'b', q2:'d', q3:'c' };
+
+  // ===== Helpers =====
+  function setMsg(t){ const el=document.getElementById('mensagem'); if(el) el.textContent=t||''; }
+  function getChecked(name){
+    const nodes=document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner) return;
+    bar.style.display='block'; inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{
+      pct=Math.min(100,pct+Math.random()*12+3);
+      inner.style.width=pct+'%';
+      if(pct>=95){ clearInterval(progTimer); progTimer=null; }
+    },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(inner) inner.style.width='100%';
+  }
+  function renderFeedback(resps){
+    const fb=document.getElementById('feedback');
+    if(!fb) return;
+    const qs=['q1','q2','q3'];
+    const itens=qs.map((qid,i)=>{
+      const marcada=resps[qid];
+      const correta=GAB[qid];
+      const ok=marcada===correta;
+      return `
+        <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+          <b>${i+1}.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+          <small>Sua: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+        </div>
+      `;
+    }).join('');
+    fb.innerHTML = `<h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>${itens}`;
+    fb.style.display='block';
+  }
+
+  // ===== Fluxo principal =====
+  function enviar(){
+    if(enviando) return;
+    enviando=true;
+
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
+    setMsg('');
+
+    // Coleta respostas
+    const respostas = {
+      q1:getChecked('q1'),
+      q2:getChecked('q2'),
+      q3:getChecked('q3')
+    };
+
+    // validações
+    if(!respostas.q1||!respostas.q2||!respostas.q3){
+      setMsg('❗ Por favor, responda todas as perguntas antes de continuar.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; }
+      enviando=false; return;
+    }
+
+    const codigo=sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; }
+      enviando=false; return;
+    }
+
+    // 1) Feedback imediato
+    renderFeedback(respostas);
+
+    // 2) Salvar no backend e descobrir próxima rota
+    const pacote=[codigo, respostas.q1, respostas.q2, respostas.q3];
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        proximaPaginaDecidida = String(proxima||'').replace(/\.html?$/i,'') || 'topico04';
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; btn.onclick=irParaProximo; }
+        enviando=false;
+      })
+      .withFailureHandler(function(e){
+        stopLoading(); console.error(e);
+        setMsg('Não foi possível enviar suas respostas agora. Tente novamente.');
+        if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; btn.onclick=enviar; }
+        enviando=false;
+      })
+      .corrigirReforco03(pacote);
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){ setMsg('Aguarde o salvamento.'); return; }
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Abrindo...'; }
+    google.script.run
+      .withSuccessHandler(function(html){ document.open(); document.write(html); document.close(); })
+      .withFailureHandler(function(e){
+        console.error(e); setMsg('Falha ao abrir a próxima página.');
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; }
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  // expõe
+  window.enviar=enviar;
+  window.irParaProximo=irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', e=>{ if(e.key==='Enter') enviar(); });
+})();
+</script>
+
+</body>
+</html>

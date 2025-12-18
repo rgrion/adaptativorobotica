@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisa de Experiência – UX</title>
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#ffffff; --primary:#1976d2;
+      --primary-hover:#1565c0; --accent:#64b5f6; --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:var(--bg);padding:20px;margin:0;color:var(--text)}
+    .container{background:var(--card);max-width:900px;margin:auto;padding:30px;border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)}
+    h2{color:var(--primary);margin-bottom:10px}
+    p{line-height:1.6}
+    .info{background:#f7faff;border-left:4px solid var(--accent);padding:12px;border-radius:6px;margin:10px 0 18px}
+    .pergunta{margin:22px 0;padding:14px;background:#f7faff;border-left:4px solid var(--accent);border-radius:6px}
+    .pergunta p{margin:0 0 8px}
+
+    /* Likert: linear (1–5) */
+    .likert label{display:inline-block;margin:0 10px 0 0}
+    .hint{margin-top:6px;color:#455a64;font-size:.95em}
+
+    /* Botão / feedback */
+    button{background:var(--primary);color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:16px;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:14px;color:#d32f2f;font-weight:700}
+
+    @media (max-width:600px){
+      .container{padding:20px}
+      h2{font-size:1.25em}
+      button{width:100%}
+      .likert label{margin:4px 8px 0 0}
+    }
+
+    /* Barra de carregamento */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🧭 Pesquisa de Experiência - User Experience (UX)</h2>
+    <div class="info">
+      <p>Responda de 1 a 5 para cada afirmação (1 = discordo totalmente · 5 = concordo totalmente). Suas respostas ajudam a melhorar o curso para os próximos alunos.</p>
+    </div>
+
+    <form id="uxForm">
+      <!-- ux1 -->
+      <div class="pergunta likert">
+        <p><b>1.</b> As explicações foram fáceis de entender.</p>
+        <label><input type="radio" name="ux1" value="1"> 1</label>
+        <label><input type="radio" name="ux1" value="2"> 2</label>
+        <label><input type="radio" name="ux1" value="3"> 3</label>
+        <label><input type="radio" name="ux1" value="4"> 4</label>
+        <label><input type="radio" name="ux1" value="5"> 5</label>
+        <div class="hint">Clareza das aulas e dos passos no Tinkercad/Arduino.</div>
+      </div>
+
+      <!-- ux2 -->
+      <div class="pergunta likert">
+        <p><b>2.</b> As atividades foram do nível de dificuldade certo para mim.</p>
+        <label><input type="radio" name="ux2" value="1"> 1</label>
+        <label><input type="radio" name="ux2" value="2"> 2</label>
+        <label><input type="radio" name="ux2" value="3"> 3</label>
+        <label><input type="radio" name="ux2" value="4"> 4</label>
+        <label><input type="radio" name="ux2" value="5"> 5</label>
+        <div class="hint">Nem fácil demais, nem difícil demais.</div>
+      </div>
+
+      <!-- ux3 -->
+      <div class="pergunta likert">
+        <p><b>3.</b> Senti que aprendi coisas novas e úteis.</p>
+        <label><input type="radio" name="ux3" value="1"> 1</label>
+        <label><input type="radio" name="ux3" value="2"> 2</label>
+        <label><input type="radio" name="ux3" value="3"> 3</label>
+        <label><input type="radio" name="ux3" value="4"> 4</label>
+        <label><input type="radio" name="ux3" value="5"> 5</label>
+        <div class="hint">O que aprendi faz sentido para usar em projetos reais.</div>
+      </div>
+
+      <!-- ux4 -->
+      <div class="pergunta likert">
+        <p><b>4.</b> Fiquei confiante para montar e testar os circuitos.</p>
+        <label><input type="radio" name="ux4" value="1"> 1</label>
+        <label><input type="radio" name="ux4" value="2"> 2</label>
+        <label><input type="radio" name="ux4" value="3"> 3</label>
+        <label><input type="radio" name="ux4" value="4"> 4</label>
+        <label><input type="radio" name="ux4" value="5"> 5</label>
+        <div class="hint">Autoconfiança ao mexer no Arduino, sensores e motores.</div>
+      </div>
+
+      <!-- ux5 -->
+      <div class="pergunta likert">
+        <p><b>5.</b> Usar o Tinkercad ajudou a aprender melhor.</p>
+        <label><input type="radio" name="ux5" value="1"> 1</label>
+        <label><input type="radio" name="ux5" value="2"> 2</label>
+        <label><input type="radio" name="ux5" value="3"> 3</label>
+        <label><input type="radio" name="ux5" value="4"> 4</label>
+        <label><input type="radio" name="ux5" value="5"> 5</label>
+        <div class="hint">Simulação antes da prática com hardware real.</div>
+      </div>
+
+      <!-- ux6 -->
+      <div class="pergunta likert">
+        <p><b>6.</b> Trabalhar em equipe/dupla foi uma parte positiva do curso.</p>
+        <label><input type="radio" name="ux6" value="1"> 1</label>
+        <label><input type="radio" name="ux6" value="2"> 2</label>
+        <label><input type="radio" name="ux6" value="3"> 3</label>
+        <label><input type="radio" name="ux6" value="4"> 4</label>
+        <label><input type="radio" name="ux6" value="5"> 5</label>
+        <div class="hint">Colaboração, troca de ideias e divisão de tarefas.</div>
+      </div>
+
+      <!-- ux7 -->
+      <div class="pergunta likert">
+        <p><b>7.</b> Quero continuar aprendendo robótica depois deste curso.</p>
+        <label><input type="radio" name="ux7" value="1"> 1</label>
+        <label><input type="radio" name="ux7" value="2"> 2</label>
+        <label><input type="radio" name="ux7" value="3"> 3</label>
+        <label><input type="radio" name="ux7" value="4"> 4</label>
+        <label><input type="radio" name="ux7" value="5"> 5</label>
+        <div class="hint">Interesse e motivação para seguir aprendendo.</div>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar pesquisa</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  let enviando=false, progTimer=null;
+
+  function setMsg(t){ const el=document.getElementById('mensagem'); if(el) el.textContent=t||''; }
+  function getChecked(name){
+    const nodes=document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner) return;
+    bar.style.display='block'; inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{ pct=Math.min(100,pct+Math.random()*12+3); inner.style.width=pct+'%'; if(pct>=95){ clearInterval(progTimer); progTimer=null; } },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(inner) inner.style.width='100%';
+  }
+
+  function enviar(){
+    if(enviando) return;
+    enviando=true;
+
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
+    setMsg('');
+    document.body.style.cursor='wait';
+
+    // coleta respostas (todas obrigatórias)
+    const ux1=getChecked('ux1');
+    const ux2=getChecked('ux2');
+    const ux3=getChecked('ux3');
+    const ux4=getChecked('ux4');
+    const ux5=getChecked('ux5');
+    const ux6=getChecked('ux6');
+    const ux7=getChecked('ux7');
+
+    const map={ux1,ux2,ux3,ux4,ux5,ux6,ux7};
+    const faltando=Object.entries(map).find(([k,v])=>!v);
+    if(faltando){
+      setMsg('❗ Responda todas as afirmações (1 a 5).');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar pesquisa'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    // código do aluno (5 dígitos)
+    const codigo=sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar pesquisa'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    // pacote: [codigo, ux1..ux7] -> números
+    const pacote=[codigo, Number(ux1), Number(ux2), Number(ux3), Number(ux4), Number(ux5), Number(ux6), Number(ux7)];
+
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        // normaliza rota: se vier vazia ou diferente, força finalagradecimento
+        let rota = String(proxima||'').replace(/\.html?$/i,'') || 'finalagradecimento';
+        if (rota !== 'finalagradecimento') rota = 'finalagradecimento';
+
+        // navega imediatamente (sem botão extra)
+        google.script.run
+          .withSuccessHandler(function(html){
+            stopLoading();
+            document.open(); document.write(html); document.close();
+          })
+          .withFailureHandler(function(e2){
+            stopLoading();
+            console.error('[UX] incluir falhou:', e2);
+            setMsg('Falha ao abrir a próxima página. Tente novamente.');
+            if(btn){ btn.disabled=false; btn.textContent='Enviar pesquisa'; btn.onclick=enviar; }
+            document.body.style.cursor='default';
+            enviando=false;
+          })
+          .incluir(rota);
+      })
+      .withFailureHandler(function(e){
+        stopLoading();
+        console.error('[UX] corrigirUX falhou:', e);
+        setMsg('Não foi possível enviar sua resposta agora. Tente novamente.');
+        if(btn){ btn.disabled=false; btn.textContent='Enviar pesquisa'; btn.onclick=enviar; }
+        document.body.style.cursor='default';
+        enviando=false;
+      })
+      .corrigirUX(pacote);
+  }
+
+  // expõe
+  window.enviar=enviar;
+
+  // Enter envia
+  window.addEventListener('keydown', e=>{ if(e.key==='Enter') enviar(); });
+})();
+</script>
+</body>
+</html>

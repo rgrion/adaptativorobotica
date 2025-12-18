@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{
+      --bg: #e3f2fd;
+      --card: #ffffff;
+      --primary: #1976d2;
+      --primary-hover:#1565c0;
+      --accent:#64b5f6;
+      --muted:#f4f7fb;
+      --text:#0d1b2a;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+      background: var(--bg);
+      padding: 20px;
+      margin: 0;
+      color: var(--text);
+    }
+    .container {
+      background: var(--card);
+      max-width: 900px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(13,27,42,0.08);
+    }
+    h2 { color: var(--primary); margin-bottom: 10px; }
+    h3 { margin-top: 20px; color: #0f3660; }
+    pre {
+      background: var(--muted);
+      padding: 12px;
+      border-left: 4px solid var(--accent);
+      overflow-x: auto;
+      border-radius: 6px;
+    }
+    ul { padding-left: 20px; }
+    .pergunta {
+      margin: 25px 0;
+      padding: 15px;
+      background: #f7faff;
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+    }
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: var(--primary-hover); }
+    input[type="radio"] { margin-right: 8px; }
+    #mensagem { margin-top: 15px; color: #d32f2f; font-weight: bold; }
+    @media (max-width: 600px) {
+      .container { padding: 20px; }
+      h2 { font-size: 1.25em; }
+      button { width: 100%; }
+    }
+    /* Barra de carregamento */
+    .loadingbar { display:none; width:100%; background:#e0e0e0; border-radius:8px; overflow:hidden; height:10px; margin-top:12px }
+    .loadingbar>.inner { width:0%; height:100%; background:var(--primary); transition:width .2s linear }
+    .hint { margin-top: 8px; color: #455a64; font-size: 0.95em; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Tópico -->
+    <h2>🔊 Tópico 03 – Usando o Buzzer e Botões: Som e Interação com o Robô</h2>
+
+    <h3>📚 O que vamos aprender nesta aula?</h3>
+    <p>Neste tópico, vamos trazer interatividade sonora para o seu robô! Você vai aprender a emitir sons com um buzzer e a usar botões para controlar ações no circuito. Primeiro faremos a simulação no Tinkercad, depois montaremos tudo fisicamente com o Arduino. Essa prática abre caminho para alarmes, toques personalizados e comandos via botão.</p>
+
+    <h3>🔉 Conhecendo os componentes</h3>
+    <p><b>🎵 O que é o buzzer?</b><br>
+    O buzzer é um pequeno alto-falante usado para gerar sons simples. Existem dois tipos:</p>
+    <ul>
+      <li><b>Buzzer passivo</b>: precisa de sinais PWM variáveis para tocar sons diferentes.</li>
+      <li><b>Buzzer ativo</b>: emite um som fixo ao receber corrente. <i>É o que usaremos aqui.</i></li>
+    </ul>
+    <p><i>Atenção:</i> o buzzer ativo já tem um oscilador interno — basta aplicar 5V para que ele apite.</p>
+
+    <p><b>🖲️ O que é um botão (push button)?</b><br>
+    O botão é um dispositivo de entrada digital. Quando pressionado, ele fecha o circuito, permitindo a passagem da corrente.</p>
+
+    <h3>🛠️ Etapa 1 – Montando no Tinkercad</h3>
+    <ol>
+      <li>Acesse o site: <a href="https://www.tinkercad.com" target="_blank" rel="noopener">https://www.tinkercad.com</a></li>
+      <li>Clique em “Criar novo circuito”.</li>
+      <li>Adicione: 1× Protoboard, 1× Buzzer (ativo), 1× Push button, 1× Resistor 10kΩ, 1× Arduino UNO e fios.</li>
+      <li>Esquema:
+        <ul>
+          <li><b>Buzzer:</b> “+” no pino 8, “–” no GND.</li>
+          <li><b>Botão:</b> um lado no pino 2; outro no +5V.</li>
+          <li><b>Resistor 10kΩ:</b> entre GND e o pino do botão (pull-down).</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h3>🧾 Código em C++</h3>
+    <pre>
+int buzzer = 8;
+int botao  = 2;
+
+void setup() {
+  pinMode(buzzer, OUTPUT);
+  pinMode(botao, INPUT); // usando resistor externo de 10kΩ como pull-down
+}
+
+void loop() {
+  if (digitalRead(botao) == HIGH) {
+    digitalWrite(buzzer, HIGH); // Toca o som
+  } else {
+    digitalWrite(buzzer, LOW);  // Silêncio
+  }
+}
+    </pre>
+
+    <h3>🔁 Etapa 2 – Copiando o código para o Arduino físico</h3>
+    <ol>
+      <li>No Tinkercad, “Código” → “Texto”.</li>
+      <li>Copie e cole no Arduino IDE.</li>
+      <li>Monte o circuito físico igual ao simulado.</li>
+      <li>Envie o código para o Arduino.</li>
+    </ol>
+
+    <hr>
+
+    <!-- Quiz -->
+    <h2>📝 Quiz do Tópico 03</h2>
+    <form id="quizForm">
+      <div class="pergunta">
+        <p><b>1.</b> Para que serve o botão no circuito com o buzzer?</p>
+        <label><input type="radio" name="q1" value="a"> a) Aumentar o volume</label><br>
+        <label><input type="radio" name="q1" value="b"> b) Ligar e desligar manualmente o som</label><br>
+        <label><input type="radio" name="q1" value="c"> c) Mudar a frequência do buzzer</label><br>
+        <label><input type="radio" name="q1" value="d"> d) Substituir o resistor</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>2.</b> No circuito com buzzer e botão, qual é a principal função do botão dentro do programa do Arduino?</p>
+        <label><input type="radio" name="q2" value="a"> a) Enviar um sinal de entrada digital para o Arduino, indicando quando o som deve ser acionado</label><br>
+        <label><input type="radio" name="q2" value="b"> b) Aumentar o volume do buzzer enquanto estiver pressionado</label><br>
+        <label><input type="radio" name="q2" value="c"> c) Fornecer energia para o circuito por meio do pino 5V</label><br>
+        <label><input type="radio" name="q2" value="d"> d) Substituir o uso do resistor de 10kΩ no circuito</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>3.</b> O que precisamos fazer para usar o mesmo código do Tinkercad no Arduino físico?</p>
+        <label><input type="radio" name="q3" value="a"> a) Copiar o código no modo Texto e colar no Arduino IDE</label><br>
+        <label><input type="radio" name="q3" value="b"> b) Salvar como PDF</label><br>
+        <label><input type="radio" name="q3" value="c"> c) Enviar por e-mail</label><br>
+        <label><input type="radio" name="q3" value="d"> d) Imprimir a tela</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>4.</b> Qual é a função do resistor de 10kΩ no circuito com o botão?</p>
+        <label><input type="radio" name="q4" value="a"> a) Reduzir o som do buzzer</label><br>
+        <label><input type="radio" name="q4" value="b"> b) Funcionar como resistência de proteção do LED</label><br>
+        <label><input type="radio" name="q4" value="c"> c) Atuar como resistor de pull-down, evitando leituras falsas do botão</label><br>
+        <label><input type="radio" name="q4" value="d"> d) Controlar a velocidade do loop do Arduino</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>5.</b> Qual afirmação descreve corretamente o funcionamento do buzzer ativo?</p>
+        <label><input type="radio" name="q5" value="a"> a) Ele precisa de sinais PWM variados para gerar som</label><br>
+        <label><input type="radio" name="q5" value="b"> b) Ele emite som fixo ao receber corrente, pois possui oscilador interno</label><br>
+        <label><input type="radio" name="q5" value="c"> c) Ele só funciona se estiver conectado à porta analógica A0</label><br>
+        <label><input type="radio" name="q5" value="d"> d) Ele converte som em luz usando um LED interno</label>
+      </div>
+
+      <!-- Likert -->
+      <div class="pergunta">
+        <p><b>Dificuldade percebida</b> (1 = muito fácil · 5 = muito difícil)</p>
+        <label><input type="radio" name="dif" value="1"> 1</label>
+        <label><input type="radio" name="dif" value="2"> 2</label>
+        <label><input type="radio" name="dif" value="3"> 3</label>
+        <label><input type="radio" name="dif" value="4"> 4</label>
+        <label><input type="radio" name="dif" value="5"> 5</label>
+        <div class="hint">Marque como você percebeu a dificuldade deste tópico.</div>
+      </div>
+
+      <div class="pergunta">
+        <p><b>Autoconfiança</b> (1 = nada confiante · 5 = muito confiante)</p>
+        <label><input type="radio" name="auto" value="1"> 1</label>
+        <label><input type="radio" name="auto" value="2"> 2</label>
+        <label><input type="radio" name="auto" value="3"> 3</label>
+        <label><input type="radio" name="auto" value="4"> 4</label>
+        <label><input type="radio" name="auto" value="5"> 5</label>
+        <div class="hint">Como você se sente para seguir para o próximo passo?</div>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Respostas</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  // ===== Estado =====
+  let enviando=false, progTimer=null, proximaPaginaDecidida=null;
+
+  // Gabarito oficial do Tópico 03 (quizzes.gs): ['b','c','c','b','c']
+  const GAB = { q1:'b', q2:'a', q3:'a', q4:'c', q5:'b' };
+
+  // ===== Helpers =====
+  function setMsg(t){ const el=document.getElementById('mensagem'); if(el) el.textContent=t||''; }
+  function getChecked(name){
+    const nodes=document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner) return;
+    bar.style.display='block'; inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{
+      pct=Math.min(100,pct+Math.random()*12+3);
+      inner.style.width=pct+'%';
+      if(pct>=95){ clearInterval(progTimer); progTimer=null; }
+    },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(inner) inner.style.width='100%';
+  }
+  function renderFeedback(resps){
+    const fb=document.getElementById('feedback');
+    if(!fb) return;
+    const qs=['q1','q2','q3','q4','q5'];
+    const itens=qs.map((qid,i)=>{
+      const marcada=resps[qid];
+      const correta=GAB[qid];
+      const ok=marcada===correta;
+      return `
+        <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+          <b>${i+1}.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+          <small>Sua: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+        </div>
+      `;
+    }).join('');
+    fb.innerHTML = `<h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>${itens}`;
+    fb.style.display='block';
+  }
+
+  // ===== Fluxo principal =====
+  function enviar(){
+    if(enviando) return;
+    enviando=true;
+
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
+    setMsg('');
+
+    // Coleta respostas
+    const respostas = {
+      q1:getChecked('q1'),
+      q2:getChecked('q2'),
+      q3:getChecked('q3'),
+      q4:getChecked('q4'),
+      q5:getChecked('q5'),
+      dif:getChecked('dif'),
+      auto:getChecked('auto')
+    };
+
+    // validações
+    if(!respostas.q1||!respostas.q2||!respostas.q3||!respostas.q4||!respostas.q5){
+      setMsg('❗ Por favor, responda todas as perguntas do quiz.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; }
+      enviando=false; return;
+    }
+    if(!respostas.dif||!respostas.auto){
+      setMsg('❗ Marque Dificuldade percebida e Autoconfiança (1–5).');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; }
+      enviando=false; return;
+    }
+
+    const codigo=sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; }
+      enviando=false; return;
+    }
+
+    // 1) Feedback imediato
+    renderFeedback({ q1:respostas.q1, q2:respostas.q2, q3:respostas.q3, q4:respostas.q4, q5:respostas.q5 });
+
+    // 2) Salvar no backend e descobrir próxima rota
+    const pacote=[codigo, respostas.q1, respostas.q2, respostas.q3, respostas.q4, respostas.q5, Number(respostas.dif), Number(respostas.auto)];
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        proximaPaginaDecidida = String(proxima||'').replace(/\.html?$/i,'') || 'topico04';
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; btn.onclick=irParaProximo; }
+        enviando=false;
+      })
+      .withFailureHandler(function(e){
+        stopLoading(); console.error(e);
+        setMsg('Não foi possível enviar suas respostas agora. Tente novamente.');
+        if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; btn.onclick=enviar; }
+        enviando=false;
+      })
+      .corrigirQuiz03(pacote);
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){ setMsg('Aguarde o salvamento.'); return; }
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Abrindo...'; }
+    google.script.run
+      .withSuccessHandler(function(html){ document.open(); document.write(html); document.close(); })
+      .withFailureHandler(function(e){
+        console.error(e); setMsg('Falha ao abrir a próxima página.');
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; }
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  // expõe
+  window.enviar=enviar;
+  window.irParaProximo=irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', e=>{ if(e.key==='Enter') enviar(); });
+})();
+</script>
+
+</body>
+</html>

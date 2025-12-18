@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{
+      --bg: #e3f2fd;
+      --card: #ffffff;
+      --primary: #1976d2;
+      --primary-hover:#1565c0;
+      --accent:#64b5f6;
+      --muted:#f4f7fb;
+      --text:#0d1b2a;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:var(--bg);padding:20px;margin:0;color:var(--text)}
+    .container{background:var(--card);max-width:900px;margin:auto;padding:30px;border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)}
+    h2{color:var(--primary);margin-bottom:10px}
+    h3{margin-top:20px;color:#0f3660}
+    p{line-height:1.6}
+    pre{background:var(--muted);padding:12px;border-left:4px solid var(--accent);overflow-x:auto;border-radius:6px}
+    ul,ol{padding-left:20px}
+    .info{background:#f7faff;border-left:4px solid var(--accent);padding:12px;border-radius:6px}
+    .pergunta{margin:25px 0;padding:15px;background:#f7faff;border-left:4px solid var(--accent);border-radius:6px}
+
+    /* Alternativas empilhadas */
+    label{display:block;margin:6px 0}
+    input[type="radio"]{margin-right:8px}
+
+    button{background:var(--primary);color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:16px;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:15px;color:#d32f2f;font-weight:bold}
+    @media (max-width:600px){.container{padding:20px}h2{font-size:1.25em}button{width:100%}}
+
+    /* Barra de carregamento */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔁 Reforço 05 – Revisando o Sensor Ultrassônico</h2>
+
+    <p>✨ Só mais um passo! O sensor ultrassônico é um dos recursos mais legais do seu robô. Ele permite que o robô “enxergue” sem usar câmera, apenas medindo a distância até os obstáculos. Se algo estiver muito perto, ele pode parar, desviar ou emitir um alerta. Vamos revisar?</p>
+
+    <h3>📌 Pontos principais</h3>
+    <ul>
+      <li>O sensor <b>HC-SR04</b> envia um som que rebate no obstáculo e volta.</li>
+      <li>O tempo entre enviar (<b>TRIG</b>) e receber (<b>ECHO</b>) o som é usado para calcular a distância.</li>
+      <li>Podemos usar esse valor no código para acender um LED, parar um motor ou emitir um som.</li>
+    </ul>
+
+    <p><b>Exemplo de condição no código:</b></p>
+    <pre>
+if (distancia &lt; 20) {
+  // faz algo, como parar o robô
+}
+    </pre>
+
+    <hr>
+
+    <h2>📝 Quiz do Reforço 05</h2>
+    <form id="quizForm">
+      <div class="pergunta">
+        <p><b>1.</b> Qual a função do pino ECHO no sensor?</p>
+        <label><input type="radio" name="q1" value="a"> a) Ele envia o sinal ultrassônico</label>
+        <label><input type="radio" name="q1" value="b"> b) Ele calcula a voltagem</label>
+        <label><input type="radio" name="q1" value="c"> c) Ele recebe o som de volta</label>
+        <label><input type="radio" name="q1" value="d"> d) Ele liga o LED</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>2.</b> O que acontece se o sensor detectar um objeto muito próximo (ex.: 15 cm)?</p>
+        <label><input type="radio" name="q2" value="a"> a) O código ignora a leitura</label>
+        <label><input type="radio" name="q2" value="b"> b) Pode executar uma ação como acender LED ou parar motor</label>
+        <label><input type="radio" name="q2" value="c"> c) O robô desliga sozinho</label>
+        <label><input type="radio" name="q2" value="d"> d) Ele gira o sensor automaticamente</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>3.</b> Por que usamos um <code>delay(100)</code> no código com sensor?</p>
+        <label><input type="radio" name="q3" value="a"> a) Para desligar o sensor temporariamente</label>
+        <label><input type="radio" name="q3" value="b"> b) Para aumentar a distância</label>
+        <label><input type="radio" name="q3" value="c"> c) Para dar tempo entre uma leitura e outra</label>
+        <label><input type="radio" name="q3" value="d"> d) Para carregar o Arduino mais rápido</label>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Respostas</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  let enviando=false, progTimer=null, proximaPaginaDecidida=null;
+
+  // Gabarito deste reforço
+  const GAB = { q1:'c', q2:'b', q3:'c' };
+
+  // Helpers
+  function getChecked(name){
+    const nodes=document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function setMsg(t){ const el=document.getElementById('mensagem'); if(el) el.textContent=t||''; }
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner) return;
+    bar.style.display='block'; inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{
+      pct=Math.min(100,pct+Math.random()*12+3);
+      inner.style.width=pct+'%';
+      if(pct>=95){ clearInterval(progTimer); progTimer=null; }
+    },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(inner) inner.style.width='100%';
+  }
+
+  function renderFeedback(resps){
+    const fb=document.getElementById('feedback');
+    if(!fb) return;
+    const ordem=['q1','q2','q3'];
+    const itens = ordem.map((qid,i)=>{
+      const marcada=resps[qid];
+      const correta=GAB[qid];
+      const ok=marcada===correta;
+      return `
+        <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+          <b>${i+1}.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+          <small>Sua: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+        </div>`;
+    }).join('');
+    fb.innerHTML = `<h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>${itens}`;
+    fb.style.display='block';
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){ setMsg('Aguarde o salvamento para continuar…'); return; }
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Abrindo…'; }
+    document.body.style.cursor='wait';
+
+    google.script.run
+      .withSuccessHandler(function(html){
+        document.open(); document.write(html); document.close();
+      })
+      .withFailureHandler(function(err2){
+        console.error('[REFORCO05] incluir falhou:', err2);
+        setMsg('Falha ao abrir a próxima página. Tente novamente.');
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; btn.onclick=irParaProximo; }
+        document.body.style.cursor='default';
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  function enviar(){
+    if(enviando) return;
+    enviando=true;
+
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
+    setMsg('');
+    document.body.style.cursor='wait';
+
+    // Coleta respostas
+    const marcadas={
+      q1:getChecked('q1'),
+      q2:getChecked('q2'),
+      q3:getChecked('q3')
+    };
+    if(!marcadas.q1 || !marcadas.q2 || !marcadas.q3){
+      setMsg('❗ Por favor, responda todas as perguntas antes de continuar.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    const codigo=sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    // 1) Feedback local
+    renderFeedback(marcadas);
+
+    // 2) Salva e decide próxima rota (apenas avaliacaofinal)
+    const pacote=[codigo, marcadas.q1, marcadas.q2, marcadas.q3];
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        let rota = String(proxima||'').replace(/\.html?$/i,'').toLowerCase();
+        // whitelist rígida
+        if(rota !== 'avaliacaofinal') rota = 'avaliacaofinal';
+        proximaPaginaDecidida = rota;
+
+        if(btn){
+          btn.disabled=false;
+          btn.textContent='Ir para o próximo';
+          btn.onclick=irParaProximo;   /* <- troca o handler do botão */
+        }
+        document.body.style.cursor='default';
+        enviando=false;
+      })
+      .withFailureHandler(function(e){
+        stopLoading();
+        console.error('[REFORCO05] corrigirReforco05 falhou:', e);
+        setMsg('Não foi possível enviar suas respostas agora. Tente novamente.');
+        if(btn){
+          btn.disabled=false;
+          btn.textContent='Enviar Respostas';
+          btn.onclick=enviar;          /* volta ao fluxo original */
+        }
+        document.body.style.cursor='default';
+        enviando=false;
+      })
+      .corrigirReforco05(pacote);
+  }
+
+  // expõe
+  window.enviar=enviar;
+  window.irParaProximo=irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', e=>{ if(e.key==='Enter') enviar(); });
+
+  // helper opcional
+  function goTo(page){
+    const base = window.location.href.split('?')[0];
+    window.location.replace(`${base}?p=${String(page).replace(/\.html?$/,'')}&ts=${Date.now()}`);
+  }
+  window.goTo = goTo;
+})();
+</script>
+</body>
+</html>

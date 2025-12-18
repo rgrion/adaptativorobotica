@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#ffffff; --primary:#1976d2;
+      --primary-hover:#1565c0; --accent:#64b5f6; --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:var(--bg);padding:20px;margin:0;color:var(--text)}
+    .container{background:var(--card);max-width:900px;margin:auto;padding:30px;border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)}
+    h2{color:var(--primary);margin-bottom:10px}
+    h3{margin-top:20px;color:#0f3660}
+    p{line-height:1.6}
+    .info{background:#f7faff;border-left:4px solid var(--accent);padding:12px;border-radius:6px}
+    table{width:100%;border-collapse:collapse;margin:10px 0 20px}
+    th,td{border:1px solid #dde7f3;padding:10px;text-align:center}
+    th{background:#eef5ff}
+    .pergunta{margin:25px 0;padding:15px;background:#f7faff;border-left:4px solid var(--accent);border-radius:6px}
+
+    /* >>> empilhar alternativas */
+    label{display:block;margin:6px 0}
+    input[type="radio"]{margin-right:8px}
+
+    button{background:var(--primary);color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:16px;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:15px;color:#d32f2f;font-weight:bold}
+    @media (max-width:600px){.container{padding:20px}h2{font-size:1.25em}button{width:100%}}
+
+    /* Barra de carregamento */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔁 Reforço 04 – Revisando Controle de Motor com Ponte H</h2>
+
+    <p>✨ Você está quase lá! Controlar um motor pode parecer desafiador no início, mas com cada tentativa você avança um passo na jornada da robótica. A Ponte H (L298N) funciona como um “direcionador” de energia, permitindo que o motor gire para um lado, para o outro ou fique parado.</p>
+
+    <p class="info">Trabalhar com controle de motores amplia a compreensão sobre lógica de programação, controle de fluxo e aplicação prática da eletrônica em robôs móveis.</p>
+
+    <h3>📌 O que é essencial lembrar</h3>
+    <ul>
+      <li>A Ponte H inverte o fluxo de corrente, permitindo girar o motor nos dois sentidos.</li>
+      <li>Motores DC consomem mais corrente do que o Arduino fornece → use <b>fonte externa</b> e <b>GND comum</b>.</li>
+    </ul>
+
+    <p><b>IN1/IN2 determinam o sentido:</b></p>
+    <table>
+      <thead><tr><th>IN1</th><th>IN2</th><th>Ação do motor</th></tr></thead>
+      <tbody>
+        <tr><td>HIGH</td><td>LOW</td><td>Gira em um sentido</td></tr>
+        <tr><td>LOW</td><td>HIGH</td><td>Gira no outro sentido</td></tr>
+        <tr><td>LOW</td><td>LOW</td><td>Parado</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2>📝 Quiz do Reforço 04</h2>
+    <form id="quizForm">
+      <div class="pergunta">
+        <p><b>1.</b> O que acontece se IN1 e IN2 estiverem LOW?</p>
+        <label><input type="radio" name="q1" value="a"> a) O motor gira em alta velocidade</label>
+        <label><input type="radio" name="q1" value="b"> b) O buzzer é acionado</label>
+        <label><input type="radio" name="q1" value="c"> c) O motor fica parado</label>
+        <label><input type="radio" name="q1" value="d"> d) O LED pisca</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>2.</b> Por que é necessário usar uma fonte externa para o motor?</p>
+        <label><input type="radio" name="q2" value="a"> a) Porque o motor não funciona com bateria</label>
+        <label><input type="radio" name="q2" value="b"> b) Porque motores precisam de mais corrente que o Arduino oferece</label>
+        <label><input type="radio" name="q2" value="c"> c) Porque o Arduino pode superaquecer</label>
+        <label><input type="radio" name="q2" value="d"> d) Para fazer o botão funcionar</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>3.</b> O que a Ponte H permite controlar?</p>
+        <label><input type="radio" name="q3" value="a"> a) O sentido de rotação de um motor DC</label>
+        <label><input type="radio" name="q3" value="b"> b) A cor do LED</label>
+        <label><input type="radio" name="q3" value="c"> c) O tempo de execução do código</label>
+        <label><input type="radio" name="q3" value="d"> d) A velocidade da ventoinha do computador</label>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Respostas</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  let enviando=false, progTimer=null, proximaPaginaDecidida=null;
+  const GAB = { q1:'c', q2:'b', q3:'a' };
+
+  function getChecked(name){
+    const nodes=document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function setMsg(t){ const el=document.getElementById('mensagem'); if(el) el.textContent=t||''; }
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner) return;
+    bar.style.display='block'; inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{
+      pct=Math.min(100,pct+Math.random()*12+3);
+      inner.style.width=pct+'%';
+      if(pct>=95){ clearInterval(progTimer); progTimer=null; }
+    },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(inner) inner.style.width='100%';
+  }
+  function renderFeedback(resps){
+    const fb=document.getElementById('feedback');
+    if(!fb) return;
+    const ordem=['q1','q2','q3'];
+    const itens = ordem.map((qid,i)=>{
+      const marcada=resps[qid];
+      const correta=GAB[qid];
+      const ok=marcada===correta;
+      return `
+        <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+          <b>${i+1}.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+          <small>Sua: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+        </div>`;
+    }).join('');
+    fb.innerHTML = `<h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>${itens}`;
+    fb.style.display='block';
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){ setMsg('Aguarde o salvamento.'); return; }
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Abrindo...'; }
+    document.body.style.cursor='wait';
+
+    google.script.run
+      .withSuccessHandler(function(html){
+        document.open(); document.write(html); document.close();
+      })
+      .withFailureHandler(function(e){
+        console.error('[REFORCO04] incluir falhou:', e);
+        setMsg('Falha ao abrir a próxima página.');
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; btn.onclick=irParaProximo; }
+        document.body.style.cursor='default';
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  function enviar(){
+    if(enviando) return;
+    enviando=true;
+
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
+    setMsg('');
+    document.body.style.cursor='wait';
+
+    const ordem=['q1','q2','q3'];
+    const marcadas={};
+    for(const q of ordem){ marcadas[q]=getChecked(q); }
+    if(Object.values(marcadas).includes(null)){
+      setMsg('❗ Por favor, responda todas as perguntas antes de continuar.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    const codigo=sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Respostas'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    // 1) Feedback local
+    renderFeedback(marcadas);
+
+    // 2) Salva e decide próxima rota
+    const pacote=[codigo, marcadas.q1, marcadas.q2, marcadas.q3];
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        proximaPaginaDecidida = String(proxima||'').replace(/\.html?$/i,'') || 'topico05';
+        if(btn){
+          btn.disabled=false;
+          btn.textContent='Ir para o próximo';
+          btn.onclick=irParaProximo;  /* <- troca o handler do botão */
+        }
+        document.body.style.cursor='default';
+        enviando=false;
+      })
+      .withFailureHandler(function(e){
+        stopLoading();
+        console.error('[REFORCO04] corrigirReforco04 falhou:', e);
+        setMsg('Não foi possível enviar suas respostas agora. Tente novamente.');
+        if(btn){
+          btn.disabled=false;
+          btn.textContent='Enviar Respostas';
+          btn.onclick=enviar;         /* volta ao fluxo original */
+        }
+        document.body.style.cursor='default';
+        enviando=false;
+      })
+      .corrigirReforco04(pacote);
+  }
+
+  // expõe
+  window.enviar=enviar;
+  window.irParaProximo=irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', e=>{ if(e.key==='Enter') enviar(); });
+})();
+</script>
+</body>
+</html>

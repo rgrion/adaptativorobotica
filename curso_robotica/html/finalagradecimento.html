@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultado Final</title>
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#ffffff; --primary:#1976d2; --primary-hover:#1565c0;
+      --accent:#64b5f6; --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{
+      font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+      background:linear-gradient(135deg,#e3f2fd,#bbdefb);
+      margin:0; padding:20px; color:var(--text);
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+    }
+    .container{
+      background:var(--card);
+      max-width:760px; width:100%;
+      padding:32px; border-radius:16px;
+      box-shadow:0 0 25px rgba(13,27,42,.12);
+      text-align:center; animation:fadeIn .8s ease;
+    }
+    h1{ color:#1565c0; margin:0 0 8px }
+    .sub{ color:#0f3660; margin:0 0 18px; font-size:1.05em }
+    .pontuacao{ font-size:1.8em; color:#0d47a1; font-weight:800; margin:10px 0 }
+    .medalha{ font-size:3em; margin:6px 0 2px }
+    .feedback{ font-size:1.1em; margin:8px 0 14px; color:#37474f }
+    .gabarito{
+      background:#e3f2fd;
+      padding:14px; border-radius:10px;
+      text-align:left; white-space:pre-line; font-family:ui-monospace,Consolas,monospace;
+      margin-top:14px;
+    }
+    .hint{ color:#455a64; font-size:.95em; margin-top:6px }
+    .actions{ margin-top:16px }
+    button{
+      background:var(--primary); color:#fff; border:none; border-radius:8px;
+      padding:12px 20px; font-size:16px; cursor:pointer
+    }
+    button:hover{ background:var(--primary-hover) }
+
+    /* Loading bar */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+
+    @keyframes fadeIn{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @media (max-width:600px){ .container{padding:22px} h1{font-size:1.25em} button{width:100%} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖🎓 Resultado Final – Curso de Robótica</h1>
+    <p class="sub">Parabéns por concluir o curso! Veja sua pontuação final abaixo.</p>
+
+    <div class="pontuacao" id="notaFinal">Calculando sua pontuação…</div>
+    <div class="medalha" id="medalha">🏅</div>
+    <div class="feedback" id="mensagem"></div>
+
+    <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+
+    <div class="gabarito" id="gabaritoCompacto" style="display:none"></div>
+    <div class="hint" id="obsNota"></div>
+
+    <div class="actions">
+      <button type="button" onclick="goTo('inicio')">Voltar ao início</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  let progTimer=null;
+
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner) return;
+    bar.style.display='block'; inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{
+      pct=Math.min(100,pct+Math.random()*12+3);
+      inner.style.width=pct+'%';
+      if(pct>=95){ clearInterval(progTimer); progTimer=null; }
+    },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    const bar=document.getElementById('loadingBar');
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(inner) inner.style.width='100%';
+    if(bar) bar.style.display='none';
+  }
+
+  function setScore(pontos,total){
+    const notaEl=document.getElementById('notaFinal');
+    const medEl=document.getElementById('medalha');
+    const msgEl=document.getElementById('mensagem');
+    const obsEl=document.getElementById('obsNota');
+
+    // total padrão = 10 (prova final)
+    total = (Number(total) > 0) ? Number(total) : 10;
+    const p = Number(pontos) || 0;
+
+    notaEl.textContent = `Sua pontuação foi: ${p}/${total}`;
+
+    let medalha="", mensagem="";
+    const perc = p/total;
+
+    if (perc >= 1.0) { medalha="🏆"; mensagem="Perfeito! Resultado elevado. Orgulho total!"; }
+    else if (perc >= 0.9) { medalha="🥇"; mensagem="Excelente! Você dominou o conteúdo."; }
+    else if (perc >= 0.7) { medalha="🥈"; mensagem="Muito bom! Continue explorando e criando!"; }
+    else if (perc >= 0.5) { medalha="🥉"; mensagem="Bom trabalho! Você está no caminho certo."; }
+    else { medalha="✨"; mensagem="Valeu pela dedicação! Revise os tópicos e tente de novo — você consegue!"; }
+
+    medEl.textContent = medalha;
+    msgEl.textContent = mensagem;
+
+    obsEl.textContent = "Observação: a pontuação exibida corresponde à avaliação final (10 questões). As demais atividades serviram como prática e suporte para o aprendizado.";
+  }
+
+  function carregarPontuacao(){
+    const codigo = sessionStorage.getItem('codigo');
+
+    // Se houver código, priorizamos chamá-lo com argumento
+    if (/^\d{5}$/.test(String(codigo||''))){
+      startLoading();
+      google.script.run
+        .withSuccessHandler(function(res){
+          stopLoading();
+          // aceita número direto ou objeto {pontos,total}
+          if (typeof res === 'number'){
+            setScore(res, 10);
+          } else if (res && typeof res === 'object'){
+            setScore(res.pontos, res.total || 10);
+          } else {
+            setScore(0, 10);
+          }
+          const g=document.getElementById('gabaritoCompacto');
+          g.textContent = gerarGabaritoCompacto();
+          g.style.display = 'block';
+        })
+        .withFailureHandler(function(){
+          // fallback: tenta sem argumento (compat)
+          google.script.run
+            .withSuccessHandler(function(res2){
+              stopLoading();
+              if (typeof res2 === 'number'){
+                setScore(res2, 10);
+              } else if (res2 && typeof res2 === 'object'){
+                setScore(res2.pontos, res2.total || 10);
+              } else {
+                setScore(0,10);
+              }
+              const g=document.getElementById('gabaritoCompacto');
+              g.textContent = gerarGabaritoCompacto();
+              g.style.display = 'block';
+            })
+            .withFailureHandler(function(err){
+              stopLoading();
+              document.getElementById('notaFinal').textContent='Não foi possível obter sua pontuação.';
+              document.getElementById('mensagem').textContent='Tente recarregar a página ou voltar ao início.';
+              console.error('[FINAL] obterPontuacaoFinal falhou:', err);
+            })
+            .obterPontuacaoFinal();
+        })
+        .obterPontuacaoFinal(codigo);
+
+    } else {
+      // Sem código válido — ainda tenta sem argumento
+      startLoading();
+      google.script.run
+        .withSuccessHandler(function(res){
+          stopLoading();
+          if (typeof res === 'number'){
+            setScore(res, 10);
+          } else if (res && typeof res === 'object'){
+            setScore(res.pontos, res.total || 10);
+          } else {
+            setScore(0,10);
+          }
+          const g=document.getElementById('gabaritoCompacto');
+          g.textContent = gerarGabaritoCompacto();
+          g.style.display = 'block';
+        })
+        .withFailureHandler(function(err){
+          stopLoading();
+          document.getElementById('notaFinal').textContent='Código não encontrado e não foi possível obter a nota.';
+          document.getElementById('mensagem').textContent='Volte à tela inicial e inicie novamente.';
+          console.error('[FINAL] obterPontuacaoFinal (sem arg) falhou:', err);
+        })
+        .obterPontuacaoFinal();
+    }
+  }
+
+  // init
+  carregarPontuacao();
+
+  // helper: voltar ao início (ajuste o id da rota conforme seu app)
+  window.goTo = function(page){
+    const base=window.location.href.split('?')[0];
+    window.location.replace(`${base}?p=${String(page).replace(/\.html?$/,'')}&ts=${Date.now()}`);
+  };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#ffffff; --primary:#1976d2;
+      --primary-hover:#1565c0; --accent:#64b5f6;
+      --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{
+      font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+      background:var(--bg);padding:20px;margin:0;color:var(--text);
+    }
+    .container{
+      background:var(--card);max-width:900px;margin:auto;padding:30px;
+      border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)
+    }
+    h2{color:var(--primary);margin-bottom:10px}
+    h3{margin-top:20px;color:#0f3660}
+    ul{padding-left:20px}
+    .pergunta{
+      margin:25px 0;padding:15px;background:#f7faff;
+      border-left:4px solid var(--accent);border-radius:6px
+    }
+    button{
+      background:var(--primary);color:#fff;border:none;
+      padding:12px 24px;border-radius:6px;font-size:16px;cursor:pointer
+    }
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:15px;color:#d32f2f;font-weight:bold}
+    @media(max-width:600px){
+      .container{padding:20px}h2{font-size:1.25em}button{width:100%}
+    }
+    /* Barra de carregamento */
+    .loadingbar{
+      display:none;width:100%;background:#e0e0e0;border-radius:8px;
+      overflow:hidden;height:10px;margin-top:12px
+    }
+    .loadingbar>.inner{
+      width:0%;height:100%;background:var(--primary);
+      transition:width .2s linear
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🔁 Reforço 02 – Relembrando o Circuito com LED</h2>
+
+    <p>✨ Tudo bem errar — o importante é aprender!  
+    Se o LED não acendeu ou se sentiu dificuldade, isso é comum.  
+    Vamos revisar com calma os principais pontos da atividade.</p>
+
+    <h3>⚡ O que precisa ficar claro:</h3>
+    <p><b>🟠 Função do resistor:</b> Limita a corrente elétrica que passa pelo LED.  
+    Sem ele, o LED pode queimar.</p>
+
+    <p><b>🟢 Pino 13 e controle digital:</b> <code>digitalWrite(13, HIGH)</code> envia tensão para o pino 13 e acende o LED.</p>
+
+    <p><b>🖥️ Tinkercad:</b> Permite montar o circuito virtualmente e testar com segurança.</p>
+
+    <p><b>🧾 Passagem para o mundo real:</b> Depois da simulação, copie o código e envie pelo Arduino IDE para o Arduino físico.</p>
+
+    <p><b>🧠 Dica Final:</b> Revise polaridade, resistor, conexões e porta correta no IDE.</p>
+
+    <hr>
+
+    <h2>📝 Quiz do Reforço 02</h2>
+    <form id="quizForm">
+      <div class="pergunta">
+        <p><b>1.</b> O que acontece se não usar resistor com o LED?</p>
+        <label><input type="radio" name="q1" value="a"> a) O LED brilha mais forte</label><br>
+        <label><input type="radio" name="q1" value="b"> b) O circuito funciona normalmente</label><br>
+        <label><input type="radio" name="q1" value="c"> c) O LED pode queimar</label><br>
+        <label><input type="radio" name="q1" value="d"> d) O Arduino desliga automaticamente</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>2.</b> Qual é a vantagem de usar o Tinkercad antes da montagem real?</p>
+        <label><input type="radio" name="q2" value="a"> a) Mostra imagens em 3D dos robôs</label><br>
+        <label><input type="radio" name="q2" value="b"> b) Simula o circuito e corrige erros antes de montar</label><br>
+        <label><input type="radio" name="q2" value="c"> c) Substitui o Arduino físico</label><br>
+        <label><input type="radio" name="q2" value="d"> d) Permite jogar online</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>3.</b> Depois de copiar o código do Tinkercad, onde devemos colá-lo?</p>
+        <label><input type="radio" name="q3" value="a"> a) No Arduino IDE</label><br>
+        <label><input type="radio" name="q3" value="b"> b) No Google Docs</label><br>
+        <label><input type="radio" name="q3" value="c"> c) No WhatsApp</label><br>
+        <label><input type="radio" name="q3" value="d"> d) No Paint</label>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Respostas</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  let enviando=false, progTimer=null, proximaPaginaDecidida=null;
+  const GAB={q1:'c',q2:'b',q3:'a'};
+
+  function getChecked(name){
+    const nodes=document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function setMsg(t){const el=document.getElementById('mensagem');if(el)el.textContent=t||'';}
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner)return;
+    bar.style.display='block';inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{
+      pct=Math.min(100,pct+Math.random()*12+3);
+      inner.style.width=pct+'%';
+      if(pct>=95){clearInterval(progTimer);progTimer=null;}
+    },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    if(progTimer){clearInterval(progTimer);progTimer=null;}
+    if(inner)inner.style.width='100%';
+  }
+  function renderFeedback(resps){
+    const fb=document.getElementById('feedback');
+    if(!fb)return;
+    const itens=['q1','q2','q3'].map((qid,i)=>{
+      const marcada=resps[qid],correta=GAB[qid],ok=marcada===correta;
+      return `<div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+      <b>${i+1}.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+      <small>Sua: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small></div>`;
+    }).join('');
+    fb.innerHTML=`<h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>${itens}`;
+    fb.style.display='block';
+  }
+
+  function enviar(){
+    if(enviando)return;
+    enviando=true;
+    const btn=document.getElementById('btnEnviar');
+    if(btn){btn.disabled=true;btn.textContent='Enviando...';}
+    setMsg('');
+    const respostas={q1:getChecked('q1'),q2:getChecked('q2'),q3:getChecked('q3')};
+    if(!respostas.q1||!respostas.q2||!respostas.q3){
+      setMsg('❗ Responda todas as perguntas.');if(btn){btn.disabled=false;btn.textContent='Enviar Respostas';}
+      enviando=false;return;
+    }
+    const codigo=sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado.');if(btn){btn.disabled=false;btn.textContent='Enviar Respostas';}
+      enviando=false;return;
+    }
+    renderFeedback(respostas);
+    const pacote=[codigo,respostas.q1,respostas.q2,respostas.q3];
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        proximaPaginaDecidida=String(proxima||'').replace(/\.html?$/i,'')||'topico03';
+        if(btn){btn.disabled=false;btn.textContent='Ir para o próximo';btn.onclick=irParaProximo;}
+        enviando=false;
+      })
+      .withFailureHandler(function(e){
+        stopLoading();console.error(e);
+        setMsg('Erro ao salvar respostas.');
+        if(btn){btn.disabled=false;btn.textContent='Enviar Respostas';btn.onclick=enviar;}
+        enviando=false;
+      })
+      .corrigirReforco02(pacote);
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){setMsg('Aguarde o salvamento.');return;}
+    const btn=document.getElementById('btnEnviar');
+    if(btn){btn.disabled=true;btn.textContent='Abrindo...';}
+    google.script.run
+      .withSuccessHandler(function(html){document.open();document.write(html);document.close();})
+      .withFailureHandler(function(e){
+        console.error(e);setMsg('Falha ao abrir próxima página.');
+        if(btn){btn.disabled=false;btn.textContent='Ir para o próximo';}
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  window.enviar=enviar;
+  window.irParaProximo=irParaProximo;
+  window.addEventListener('keydown',e=>{if(e.key==='Enter')enviar();});
+})();
+</script>
+
+</body>
+</html>

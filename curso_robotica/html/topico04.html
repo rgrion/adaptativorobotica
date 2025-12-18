@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{
+      --bg: #e3f2fd;
+      --card: #ffffff;
+      --primary: #1976d2;
+      --primary-hover:#1565c0;
+      --accent:#64b5f6;
+      --muted:#f4f7fb;
+      --text:#0d1b2a;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:var(--bg);padding:20px;margin:0;color:var(--text)}
+    .container{background:var(--card);max-width:900px;margin:auto;padding:30px;border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)}
+    h2{color:var(--primary);margin-bottom:10px}
+    h3{margin-top:20px;color:#0f3660}
+    pre{background:var(--muted);padding:12px;border-left:4px solid var(--accent);overflow-x:auto;border-radius:6px}
+    ul{padding-left:20px}
+    .pergunta{margin:25px 0;padding:15px;background:#f7faff;border-left:4px solid var(--accent);border-radius:6px}
+    label{display:block;margin:4px 0}
+    input[type="radio"]{margin-right:8px}
+    .likert label{display:inline-block;margin:0 10px 0 0}
+    button{background:var(--primary);color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:16px;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:15px;color:#d32f2f;font-weight:bold}
+    a{color:var(--primary)}
+    @media (max-width:600px){.container{padding:20px}h2{font-size:1.25em}button{width:100%}}
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>⚙️ Tópico 04 – Simulando e Controlando Motores com Ponte H (L298N)</h2>
+
+    <h3>📚 O que vamos aprender nesta aula?</h3>
+    <p>Agora chegou a hora de colocar seu robô em movimento! Nesta aula, você aprenderá a controlar um motor DC (corrente contínua) usando a Ponte H L298N, que permite fazer o motor girar para frente, para trás ou parar — como nos carrinhos de controle remoto!</p>
+    <p>A prática será feita primeiro no Tinkercad, com simulação do circuito, e depois com os componentes físicos, conectando o motor real ao Arduino. O controle de atuadores (como motores) é um dos pilares da robótica educacional, por permitir que os projetos deixem de ser apenas sinais visuais ou sonoros e passem a ter movimento real.</p>
+
+    <h3>🚗 Por que usar uma Ponte H?</h3>
+    <p>A Ponte H é um circuito especial que permite inverter o sentido da corrente elétrica que passa pelo motor. Isso possibilita controlar a rotação do motor:</p>
+    <ul>
+      <li>🟢 Girar para frente</li>
+      <li>🔄 Girar para trás</li>
+      <li>⛔ Parar</li>
+    </ul>
+    <p>O módulo L298N já vem pronto com esse circuito, facilitando a ligação com o Arduino, e pode ser usado para motores DC ou motores de passo.</p>
+
+    <h3>🛠️ Etapa 1 – Montando no Tinkercad</h3>
+    <ol>
+      <li>Acesse: <a href="https://www.tinkercad.com" target="_blank" rel="noopener">https://www.tinkercad.com</a></li>
+      <li>Clique em “Criar novo circuito”.</li>
+      <li>Adicione:
+        <ul>
+          <li>1× Arduino UNO</li>
+          <li>1× Módulo Ponte H L298N</li>
+          <li>1× Motor DC</li>
+          <li>1× Fonte externa (ex.: bateria 9V simulada)</li>
+          <li>Fios de conexão</li>
+        </ul>
+      </li>
+      <li>Conexões:
+        <ul>
+          <li>IN1 (Ponte H) → pino 8 do Arduino</li>
+          <li>IN2 (Ponte H) → pino 9 do Arduino</li>
+          <li>ENA → pino 10 do Arduino (ou +5V se não usar PWM)</li>
+          <li>OUT1/OUT2 → fios do motor DC</li>
+          <li>GND da Ponte H → GND do Arduino</li>
+          <li>VCC da Ponte H → alimentação externa (9V/12V)</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h3>🧾 Código em C++</h3>
+    <pre>
+int IN1 = 8;
+int IN2 = 9;
+int ENA = 10;
+
+void setup() {
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENA, OUTPUT);
+}
+
+void loop() {
+  // Gira para frente
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(ENA, HIGH);
+  delay(2000);
+
+  // Para
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  delay(1000);
+
+  // Gira para trás
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(ENA, HIGH);
+  delay(2000);
+
+  // Para
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  delay(1000);
+}
+    </pre>
+
+    <p>➡️ Clique em “Iniciar Simulação”: o motor deve girar para frente, parar, girar para trás e parar novamente. Com isso, você já compreende a lógica de controle direcional de motores DC, essencial para robôs móveis!</p>
+
+    <h3>🔁 Etapa 2 – Copiando o código para o Arduino físico</h3>
+    <ol>
+      <li>No Tinkercad, clique em “Código”.</li>
+      <li>Troque de “Blocos” para “Texto”.</li>
+      <li>Copie o código (<kbd>Ctrl</kbd>+<kbd>C</kbd>) e cole no Arduino IDE (<kbd>Ctrl</kbd>+<kbd>V</kbd>).</li>
+      <li>Monte o circuito real (ponte H + motor DC).</li>
+      <li>Conecte o Arduino via USB e clique em “Enviar”.</li>
+    </ol>
+
+    <h3>⚠️ Dicas importantes</h3>
+    <ul>
+      <li>🟠 Use fonte externa para alimentar o motor (9–12V). O Arduino não fornece corrente suficiente.</li>
+      <li>🟡 Conecte todos os GNDs juntos (Arduino + fonte + Ponte H).</li>
+      <li>🔵 Se o motor não girar, confira pinos, inverta OUT1/OUT2 e verifique o jumper de habilitação do ENA (se não usar PWM).</li>
+    </ul>
+
+    <hr>
+
+    <h2>📝 Quiz do Tópico 04</h2>
+    <form id="quizForm">
+      <div class="pergunta">
+        <p><b>1.</b> Qual é a função da Ponte H (L298N)?</p>
+        <label><input type="radio" name="q1" value="a"> a) Emitir sons com o buzzer</label>
+        <label><input type="radio" name="q1" value="b"> b) Controlar LEDs com mais brilho</label>
+        <label><input type="radio" name="q1" value="c"> c) Inverter a direção de um motor DC</label>
+        <label><input type="radio" name="q1" value="d"> d) Diminuir a voltagem do Arduino</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>2.</b> Por que usamos uma fonte externa no controle de motores?</p>
+        <label><input type="radio" name="q2" value="a"> a) Para proteger o buzzer</label>
+        <label><input type="radio" name="q2" value="b"> b) Porque o Arduino não fornece energia suficiente</label>
+        <label><input type="radio" name="q2" value="c"> c) Para iluminar o LED com mais força</label>
+        <label><input type="radio" name="q2" value="d"> d) Para evitar o uso da ponte H</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>3.</b> Qual é o efeito de ligar IN1 em HIGH e IN2 em LOW?</p>
+        <label><input type="radio" name="q3" value="a"> a) Motor gira em um sentido</label>
+        <label><input type="radio" name="q3" value="b"> b) Motor gira no outro sentido</label>
+        <label><input type="radio" name="q3" value="c"> c) Motor para</label>
+        <label><input type="radio" name="q3" value="d"> d) O código é ignorado</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>4.</b> Como controlamos a velocidade do motor usando a Ponte H (L298N)?</p>
+        <label><input type="radio" name="q4" value="a"> a) Aplicando PWM no pino ENA</label>
+        <label><input type="radio" name="q4" value="b"> b) Alternando rapidamente entre 5V e GND no pino 13 do Arduino</label>
+        <label><input type="radio" name="q4" value="c"> c) Mudando IN1 e IN2 para LOW ao mesmo tempo</label>
+        <label><input type="radio" name="q4" value="d"> d) Ligando o motor diretamente à porta USB</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>5.</b> Ao usar uma fonte externa para alimentar o motor, qual conexão é indispensável para o circuito funcionar corretamente?</p>
+        <label><input type="radio" name="q5" value="a"> a) Ligar o VCC da ponte H ao pino 5V do Arduino</label>
+        <label><input type="radio" name="q5" value="b"> b) Compartilhar o GND entre Arduino, ponte H e a fonte externa</label>
+        <label><input type="radio" name="q5" value="c"> c) Conectar o ENA diretamente aos 12V da fonte</label>
+        <label><input type="radio" name="q5" value="d"> d) Isolar completamente o GND do Arduino da fonte externa</label>
+      </div>
+
+      <div class="pergunta likert">
+        <p><b>Dificuldade percebida</b> (1 = muito fácil · 5 = muito difícil)</p>
+        <label><input type="radio" name="dif" value="1"> 1</label>
+        <label><input type="radio" name="dif" value="2"> 2</label>
+        <label><input type="radio" name="dif" value="3"> 3</label>
+        <label><input type="radio" name="dif" value="4"> 4</label>
+        <label><input type="radio" name="dif" value="5"> 5</label>
+        <div class="hint">Marque como você percebeu a dificuldade deste tópico.</div>        
+      </div>
+
+      <div class="pergunta likert">
+        <p><b>Autoconfiança</b> (1 = nada confiante · 5 = muito confiante)</p>
+        <label><input type="radio" name="auto" value="1"> 1</label>
+        <label><input type="radio" name="auto" value="2"> 2</label>
+        <label><input type="radio" name="auto" value="3"> 3</label>
+        <label><input type="radio" name="auto" value="4"> 4</label>
+        <label><input type="radio" name="auto" value="5"> 5</label>
+        <div class="hint">Como você se sente para seguir para o próximo passo?</div>        
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Respostas</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  let enviando = false;
+  let progTimer = null;
+  let proximaPaginaDecidida = null;
+
+  const GABARITO = { q1:'c', q2:'b', q3:'a', q4:'a', q5:'b' };
+
+  function getChecked(name){
+    const nodes = document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function startLoading(){
+    const bar = document.getElementById('loadingBar');
+    const inner = document.getElementById('loadingInner');
+    if(!bar || !inner) return;
+    bar.style.display = 'block';
+    inner.style.width = '0%';
+    let pct = 0;
+    progTimer = setInterval(()=>{
+      pct = Math.min(100, pct + Math.random()*12 + 3);
+      inner.style.width = pct + '%';
+      if(pct >= 95){ clearInterval(progTimer); progTimer = null; }
+    }, 180);
+  }
+  function stopLoading(){
+    const inner = document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer = null; }
+    if(inner) inner.style.width = '100%';
+  }
+  function setMsg(txt){
+    const el = document.getElementById('mensagem');
+    if(el) el.textContent = txt || '';
+  }
+
+  function renderFeedback(resps){
+    const fb = document.getElementById('feedback');
+    if(!fb) return;
+    const itens = ['q1','q2','q3','q4','q5'].map((qid,i)=>{
+      const marcada = resps[qid];
+      const correta = GABARITO[qid];
+      const ok = marcada === correta;
+      return `
+        <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+          <b>${i+1}.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+          <small>Sua resposta: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+        </div>
+      `;
+    }).join('');
+    fb.innerHTML = `<h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>${itens}`;
+    fb.style.display = 'block';
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){
+      setMsg('Aguarde o salvamento para continuar…');
+      return;
+    }
+    const btn = document.getElementById('btnEnviar');
+    if(btn){ btn.disabled = true; btn.textContent = 'Abrindo…'; }
+    document.body.style.cursor = 'wait';
+
+    google.script.run
+      .withSuccessHandler(function(html){
+        document.open(); document.write(html); document.close();
+      })
+      .withFailureHandler(function(err2){
+        console.error('[TOPICO04] incluir falhou:', err2);
+        setMsg('Falha ao abrir a próxima página. Tente novamente.');
+        if(btn){ btn.disabled = false; btn.textContent = 'Ir para o próximo'; btn.onclick = irParaProximo; }
+        document.body.style.cursor = 'default';
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  function enviar(){
+    if(enviando) return;
+    enviando = true;
+
+    const btn = document.getElementById('btnEnviar');
+    if(btn){ btn.disabled = true; btn.textContent = 'Enviando...'; }
+    setMsg('');
+    document.body.style.cursor = 'wait';
+
+    const respostas = {
+      q1: getChecked('q1'),
+      q2: getChecked('q2'),
+      q3: getChecked('q3'),
+      q4: getChecked('q4'),
+      q5: getChecked('q5'),
+      dif: getChecked('dif'),
+      auto: getChecked('auto')
+    };
+
+    if(!respostas.q1 || !respostas.q2 || !respostas.q3 || !respostas.q4 || !respostas.q5){
+      setMsg('❗ Por favor, responda todas as perguntas antes de continuar.');
+      if(btn){ btn.disabled = false; btn.textContent = 'Enviar Respostas'; }
+      document.body.style.cursor = 'default';
+      enviando = false;
+      return;
+    }
+    if(!respostas.dif || !respostas.auto){
+      setMsg('❗ Marque também Dificuldade percebida e Autoconfiança (1–5).');
+      if(btn){ btn.disabled = false; btn.textContent = 'Enviar Respostas'; }
+      document.body.style.cursor = 'default';
+      enviando = false;
+      return;
+    }
+
+    const codigo = sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo || ''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled = false; btn.textContent = 'Enviar Respostas'; }
+      document.body.style.cursor = 'default';
+      enviando = false;
+      return;
+    }
+
+    // 1) Feedback imediato
+    renderFeedback(respostas);
+
+    // 2) Salva e define rota
+    const pacote = [codigo, respostas.q1, respostas.q2, respostas.q3, respostas.q4, respostas.q5, Number(respostas.dif), Number(respostas.auto)];
+
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        proximaPaginaDecidida = String(proxima || '').replace(/\.html?$/i,'') || 'topico05';
+        // transforma o MESMO botão em “Ir para o próximo”
+        if(btn){
+          btn.disabled = false;
+          btn.textContent = 'Ir para o próximo';
+          btn.onclick = irParaProximo;        // <— ajuste essencial
+        }
+        document.body.style.cursor = 'default';
+        enviando = false;
+      })
+      .withFailureHandler(function(e){
+        stopLoading();
+        console.error('[TOPICO04] corrigirQuiz04 falhou:', e);
+        setMsg('Não foi possível enviar suas respostas agora. Tente novamente.');
+        if(btn){
+          btn.disabled = false;
+          btn.textContent = 'Enviar Respostas';
+          btn.onclick = enviar;               // garante voltar ao fluxo original
+        }
+        document.body.style.cursor = 'default';
+        enviando = false;
+      })
+      .corrigirQuiz04(pacote);
+  }
+
+  // expõe handlers
+  window.enviar = enviar;
+  window.irParaProximo = irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') enviar();
+  });
+})();
+</script>
+</body>
+</html>

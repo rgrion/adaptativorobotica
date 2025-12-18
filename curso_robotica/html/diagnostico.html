@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico Inicial</title>
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#ffffff; --primary:#1976d2;
+      --primary-hover:#1565c0; --accent:#64b5f6; --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{
+      font-family:'Segoe UI',sans-serif; background:linear-gradient(135deg,#e3f2fd,#bbdefb);
+      margin:0; padding:20px; color:var(--text);
+    }
+    .container{
+      background:var(--card); max-width:800px; margin:auto; padding:30px;
+      border-radius:12px; box-shadow:0 0 20px rgba(13,27,42,.08); animation:fadeIn .8s ease;
+    }
+    h2{ color:var(--primary); text-align:center; margin-top:0 }
+    h3{ margin-top:24px; color:#0d1b2a }
+    label{ display:block; margin-top:15px; font-weight:600 }
+    select, textarea{
+      width:100%; padding:10px; margin-top:6px; border-radius:8px; border:1px solid #cfd8dc; font-size:1em; background:#fff;
+    }
+    textarea{ min-height:90px; resize:vertical }
+    .info{ background:#f7faff; border-left:4px solid var(--accent); padding:12px; border-radius:6px; margin-bottom:16px }
+    .tale{
+      margin-top:18px; border:1px solid #cfd8dc; border-radius:10px; background:#ffffff;
+      padding:0; overflow:hidden;
+    }
+    .tale > summary{
+      cursor:pointer; list-style:none; padding:14px 16px; font-weight:700; color:var(--primary);
+      background:linear-gradient(180deg,#f7fbff,#f0f6fc);
+    }
+    .tale > summary::marker{ display:none }
+    .tale-body{
+      padding:14px 16px; max-height:280px; overflow:auto; line-height:1.45;
+    }
+    .tale-body h3{ margin:12px 0 6px; font-size:1.02rem; color:#0d1b2a }
+    .tale-body p{ margin:8px 0 }
+    .tale-body ul{ margin:6px 0 10px 18px }
+    .subtle{ color:#546e7a; font-weight:400; margin:6px 0 12px }
+    button{
+      margin-top:25px; padding:12px 24px; font-size:1.05em; background:var(--primary);
+      color:#fff; border:none; border-radius:8px; cursor:pointer; transition:background .3s, transform .2s;
+    }
+    button:hover{ background:var(--primary-hover); transform:scale(1.02) }
+    #mensagem{ color:#d32f2f; margin-top:12px; font-weight:700 }
+    @keyframes fadeIn{ from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:translateY(0)} }
+    @media (max-width:600px){ .container{padding:20px} }
+    small.muted{ color:#546e7a; font-weight:400 }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🧠 Diagnóstico Inicial – Robótica</h2>
+    <div class="info">
+      Este breve diagnóstico ajuda a personalizar sua trilha no curso de <b>Robótica com Arduino</b>.
+      Preencha tudo para seguirmos! 💪
+    </div>
+
+    <label for="idade">Faixa Etária:</label>
+    <select id="idade">
+      <option value="">Selecione</option>
+      <option>12 anos</option>
+      <option>13 anos</option>
+      <option>14 anos</option>
+      <option>15 anos</option>
+      <option>16 anos</option>
+      <option>17 anos</option>            
+    </select>
+
+    <label for="genero">Gênero:</label>
+    <select id="genero">
+      <option value="">Selecione</option>
+      <option>Feminino</option>
+      <option>Masculino</option>
+      <option>Prefiro não informar</option>
+    </select>
+
+    <label for="escolaridade">Grau de escolaridade:</label>
+    <select id="escolaridade">
+      <option value="">Selecione</option>
+      <option>Ensino Fundamental</option>
+      <option>Ensino Médio</option>
+      <option>Ensino Técnico</option>
+      <option>Ensino Superior</option>
+      <option>Pós-graduação</option>
+    </select>
+
+    <label for="internet">Você tem acesso à internet em casa?</label>
+    <select id="internet">
+      <option value="">Selecione</option>
+      <option>Sim</option>
+      <option>Não</option>
+    </select>
+
+    <label for="dispositivo">Principal dispositivo usado para estudar:</label>
+    <select id="dispositivo">
+      <option value="">Selecione</option>
+      <option>Celular</option>
+      <option>Computador</option>
+      <option>Tablet</option>
+      <option>Outro</option>
+    </select>
+
+    <label for="ambiente">Como costuma estudar?</label>
+    <select id="ambiente">
+      <option value="">Selecione</option>
+      <option>Sozinho(a)</option>
+      <option>Com ajuda de alguém</option>
+      <option>Em sala de aula</option>
+      <option>Outro</option>
+    </select>
+
+    <label for="programacao">Já teve contato com programação/eletrônica?</label>
+    <select id="programacao">
+      <option value="">Selecione</option>
+      <option>Sim</option>
+      <option>Não</option>
+    </select>
+
+    <label for="arduino">Você já usou Arduino ou Tinkercad?</label>
+    <select id="arduino">
+      <option value="">Selecione</option>
+      <option>Sim, os dois</option>
+      <option>Apenas Arduino</option>
+      <option>Apenas Tinkercad</option>
+      <option>Nunca usei</option>
+    </select>
+
+    <label for="plataformas">Onde você costuma estudar sobre tecnologia?</label>
+    <select id="plataformas">
+      <option value="">Selecione</option>
+      <option>YouTube</option>
+      <option>Curso online (plataformas)</option>
+      <option>Escola/Professor</option>
+      <option>Redes sociais</option>
+      <option>Outro</option>
+    </select>
+
+    <label for="frequencia">Com que frequência estuda tecnologia por conta própria?</label>
+    <select id="frequencia">
+      <option value="">Selecione</option>
+      <option>Todos os dias</option>
+      <option>Algumas vezes por semana</option>
+      <option>Raramente</option>
+      <option>Nunca</option>
+    </select>
+
+    <label for="emocao">Como você se sente ao aprender algo novo em tecnologia?</label>
+    <select id="emocao">
+      <option value="">Selecione</option>
+      <option>Empolgado(a)</option>
+      <option>Curioso(a)</option>
+      <option>Com medo</option>
+      <option>Ansioso(a)</option>
+      <option>Indiferente</option>
+    </select>
+
+    <label for="objetivo">Qual é o seu principal objetivo com este curso?</label>
+    <textarea id="objetivo" placeholder="Ex.: montar um robô simples que desvia de obstáculos usando materiais recicláveis."></textarea>
+
+    <h3>🧩 Pré-teste de Robótica</h3>
+    <p class="subtle">Sem estresse: responda com o que você acha agora. Não é necessário saber robótica ainda.</p>
+
+    <label for="q1">1) Um robô pode ser definido como…</label>
+    <select id="q1">
+      <option value="">Selecione</option>
+      <option>Uma máquina que funciona sozinha, seguindo instruções ou sensores</option>
+      <option>Um brinquedo eletrônico caro</option>
+      <option>Uma pessoa disfarçada de máquina</option>
+      <option>Qualquer objeto com bateria</option>
+    </select>
+
+    <label for="q2">2) Quando dizemos que um robô “pensa”, o que isso significa?</label>
+    <select id="q2">
+      <option value="">Selecione</option>
+      <option>Que ele tem sentimentos</option>
+      <option>Que ele segue comandos e reage ao ambiente</option>
+      <option>Que ele conversa como um humano</option>
+      <option>Que ele faz tudo sozinho, sem precisar ser programado</option>
+    </select>
+
+    <label for="q3">3) Qual dessas situações mostra <b>automação</b>?</label>
+    <select id="q3">
+      <option value="">Selecione</option>
+      <option>Um aluno copiando a tarefa de um colega</option>
+      <option>Uma lâmpada que acende sozinha quando escurece</option>
+      <option>Um cachorro latindo</option>
+      <option>Uma pessoa ligando o ventilador manualmente</option>
+    </select>
+
+    <label for="q4">4) O que acontece se um robô for mal programado?</label>
+    <select id="q4">
+      <option value="">Selecione</option>
+      <option>Ele aprende sozinho o jeito certo</option>
+      <option>Ele faz as tarefas do mesmo modo, mesmo que errado</option>
+      <option>Ele conserta seu próprio código</option>
+      <option>Ele não liga mais nunca</option>
+    </select>
+
+    <label for="q5">5) Um robô usa sensores para…</label>
+    <select id="q5">
+      <option value="">Selecione</option>
+      <option>Guardar energia</option>
+      <option>Ouvir ordens humanas</option>
+      <option>Perceber o ambiente e reagir</option>
+      <option>Recarregar as pilhas</option>
+    </select>
+
+    <label for="q6">6) Por que robôs são usados em lugares perigosos?</label>
+    <select id="q6">
+      <option value="">Selecione</option>
+      <option>Porque são mais baratos</option>
+      <option>Porque podem ser controlados à distância</option>
+      <option>Porque têm emoções</option>
+      <option>Porque nunca quebram</option>
+    </select>
+
+    <label for="q7">7) O que mais se parece com o funcionamento de um robô?</label>
+    <select id="q7">
+      <option value="">Selecione</option>
+      <option>Uma planta crescendo</option>
+      <option>Uma pessoa seguindo uma receita passo a passo</option>
+      <option>Um gato caçando</option>
+      <option>Um carro descendo uma ladeira</option>
+    </select>
+
+    <label for="q8">8) O que diferencia um robô de uma ferramenta comum (como um martelo)?</label>
+    <select id="q8">
+      <option value="">Selecione</option>
+      <option>O robô pode agir automaticamente</option>
+      <option>O robô é feito de metal</option>
+      <option>O robô é maior</option>
+      <option>O robô precisa de internet</option>
+    </select>
+
+    <label for="q9">9) Por que estudar robótica ajuda a desenvolver o raciocínio lógico?</label>
+    <select id="q9">
+      <option value="">Selecione</option>
+      <option>Porque é uma matéria difícil</option>
+      <option>Porque exige planejar etapas e resolver problemas</option>
+      <option>Porque tem peças coloridas</option>
+      <option>Porque é moda nas escolas</option>
+    </select>
+
+    <label for="q10">10) Como a robótica pode contribuir para o meio ambiente?</label>
+    <select id="q10">
+      <option value="">Selecione</option>
+      <option>Criando robôs que consomem muita energia</option>
+      <option>Criando sistemas automáticos de economia de recursos</option>
+      <option>Substituindo todas as pessoas</option>
+      <option>Aumentando o lixo eletrônico</option>
+    </select>
+
+    <!-- TALE -->
+    <details class="tale" id="taleBox">
+      <summary>📄 Termo de Assentimento Livre e Esclarecido (TALE) — clique para ler</summary>
+      <div class="tale-body" id="taleContent">
+        <h3>1. O que é este projeto?</h3>
+        <p>Você está sendo convidado(a) a participar de um curso de <b>Robótica</b> que também é um estudo para entender melhor como os alunos aprendem usando atividades com Arduino e materiais recicláveis.</p>
+
+        <h3>2. O que você fará?</h3>
+        <p>Você responderá perguntas rápidas, fará atividades práticas e poderá construir projetos simples. Algumas respostas e resultados das atividades serão analisados para melhorar o curso.</p>
+
+        <h3>3. Riscos e benefícios</h3>
+        <ul>
+          <li><b>Riscos:</b> mínimos, como cansaço ao responder formulários ou frustração em tarefas difíceis.</li>
+          <li><b>Benefícios:</b> aprender robótica e eletrônica, desenvolver criatividade.</li>
+        </ul>
+
+        <h3>4. Privacidade e anonimato</h3>
+        <p>Suas informações serão protegidas. Os dados usados em relatórios serão <b>anônimos</b> (sem seu nome).</p>
+
+        <h3>5. Participação voluntária</h3>
+        <p>Você <b>não é obrigado(a)</b> a participar. Pode desistir a qualquer momento, sem prejuízo.</p>
+
+        <h3>6. Contatos</h3>
+        <p><b>Responsável:</b> ********* — <b>E-mail:</b> ***************</p>
+
+        <h3>7. Concordo em participar</h3>
+        <p>Após ler, marque a caixa de concordância abaixo. Se tiver dúvidas, fale com o responsável.</p>
+      </div>
+    </details>
+
+    <label style="margin-top:14px">
+      <input type="checkbox" id="aceito">
+      Declaro que <b>li</b> o TALE e <b>concordo</b> em participar do estudo e do curso.
+    </label>
+    <small class="muted">Você pode desmarcar e sair a qualquer momento antes de enviar.</small>
+
+    <!-- carimbo de data/hora do aceite (preenchido no envio) -->
+    <input type="hidden" id="aceite_timestamp" value="">
+
+    <button id="btnEnviar" onclick="enviar()">Confirmar e Continuar</button>
+    <p id="mensagem"></p>
+  </div>
+
+<script>
+(function(){
+  // debug global: mostra JS errors
+  window.addEventListener('error', function(e){
+    const m = document.getElementById('mensagem');
+    if (m) m.textContent = 'Erro JS: ' + e.message;
+    console.error('[DIAGNOSTICO] JS Error:', e.message, e.filename + ':' + e.lineno);
+  });
+
+  let enviando = false;
+  const codigo = sessionStorage.getItem("codigo") || "";
+
+  function renderPage(page){
+    const destino = String(page).replace(/\.html?$/,'') + '.html';
+    console.log('[DIAGNOSTICO] renderPage →', destino);
+    google.script.run
+      .withSuccessHandler(function(html){
+        document.body.style.cursor = 'default';
+        document.open(); document.write(html); document.close();
+      })
+      .withFailureHandler(function(err){
+        console.error('[DIAGNOSTICO] incluir falhou:', err);
+        const msg = document.getElementById('mensagem');
+        if (msg) msg.textContent = 'Falha ao abrir a próxima página. Tente novamente.';
+        document.body.style.cursor = 'default';
+      })
+      .incluir(destino);
+  }
+
+  // utilitário
+  function valueOf(id){
+    const el = document.getElementById(id);
+    return el ? String(el.value || '').trim() : '';
+  }
+
+  // correção do pré-teste (10 itens conceituais)
+  function corrigirPreTeste(){
+    const certo = {
+      q1: "Uma máquina que funciona sozinha, seguindo instruções ou sensores",
+      q2: "Que ele segue comandos e reage ao ambiente",
+      q3: "Uma lâmpada que acende sozinha quando escurece",
+      q4: "Ele faz as tarefas do mesmo modo, mesmo que errado",
+      q5: "Perceber o ambiente e reagir",
+      q6: "Porque podem ser controlados à distância",
+      q7: "Uma pessoa seguindo uma receita passo a passo",
+      q8: "O robô pode agir automaticamente",
+      q9: "Porque exige planejar etapas e resolver problemas",
+      q10:"Criando sistemas automáticos de economia de recursos"
+    };
+    
+    window.corrigirPreTeste = corrigirPreTeste; 
+
+    let acertos = 0;
+    for (let k in certo){
+      if (valueOf(k) === certo[k]) acertos++;
+    }
+    const nota10 = acertos;       // 0..10 (1 ponto por item)
+    const nota100 = acertos * 10; // 0..100, se precisar
+    return { acertos, nota10, nota100 };
+  }
+
+  function enviar(){
+    if (enviando) return;
+    enviando = true;
+
+    const msg = document.getElementById('mensagem');
+    const btn = document.getElementById('btnEnviar');
+
+    if (!/^\d{5}$/.test(codigo)) {
+      if (msg) msg.innerText = 'Erro ao recuperar seu código. Volte para a tela inicial.';
+      enviando = false;
+      return;
+    }
+
+    // Campos de perfil (mesma ordem que sua planilha já usava)
+    const camposPerfil = [
+      'idade',          // Faixa Etária
+      'genero',         // Gênero
+      'escolaridade',   // Grau de escolaridade
+      'internet',       // Você tem acesso à internet em casa?
+      'dispositivo',    // Principal dispositivo usado para estudar
+      'ambiente',       // Como costuma estudar?
+      'programacao',    // Já teve contato com programação/eletrônica?
+      'arduino',        // Você já usou Arduino ou Tinkercad?
+      'plataformas',    // Onde você costuma estudar sobre tecnologia?
+      'frequencia',     // Com que frequência estuda tecnologia por conta própria?
+      'emocao',         // Como você se sente ao aprender algo novo em tecnologia?
+      'objetivo'        // Qual é o seu principal objetivo com este curso?
+    ];
+
+    const respostasPerfil = camposPerfil.map(id => valueOf(id));
+
+    // Também exigimos que as 10 questões do pré-teste sejam respondidas,
+    // embora NÃO sejam enviadas individualmente (somente a nota final).
+    const questoes = ['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'];
+    const respondeuTodas = questoes.every(id => valueOf(id) !== '');
+
+    const aceito = !!(document.getElementById('aceito') && document.getElementById('aceito').checked);
+
+    if (respostasPerfil.includes('') || !respondeuTodas || !aceito) {
+      if (msg) msg.innerText = 'Preencha todos os campos, responda o pré-teste e aceite o termo para continuar.';
+      enviando = false;
+      return;
+    }
+
+    // carimbo de data/hora do aceite (local ISO) — útil caso queira salvar depois
+    const tsEl = document.getElementById('aceite_timestamp');
+    if (tsEl) tsEl.value = new Date().toISOString();
+
+    // corrige e calcula nota do pré-teste (0..10)
+    const pre = corrigirPreTeste();
+
+    // Envia: Código + 14 campos de perfil + "Sim" (consentimento) + NotaPre_0_10
+    const pacote = [codigo, ...respostasPerfil, "Sim", Number(pre.nota10)];
+
+    console.log('[DIAGNOSTICO] pre=', pre);
+    console.log('[DIAGNOSTICO] pacote →', pacote);
+
+    if (btn) { btn.disabled = true; btn.textContent = 'carregando...'; }
+    if (msg) msg.textContent = '';
+    document.body.style.cursor = 'wait';
+
+    google.script.run
+      .withSuccessHandler(function(proximaPagina){
+        console.log('[DIAGNOSTICO] registrarDiagnostico OK →', proximaPagina);
+        let prox = String(proximaPagina || '').trim();
+        if (!prox) prox = 'topico01';
+        renderPage(prox);
+      })
+      .withFailureHandler(function(err){
+        console.error('[DIAGNOSTICO] registrarDiagnostico falhou:', err);
+        const emsg = (err && err.message) ? err.message : 'Erro desconhecido';
+        if (msg) msg.textContent = 'Não foi possível enviar o diagnóstico agora. ' + emsg;
+        if (btn) { btn.disabled = false; btn.textContent = 'Confirmar e Continuar'; }
+        document.body.style.cursor = 'default';
+        enviando = false;
+      })
+      .registrarDiagnostico(pacote);
+  }
+
+  // exporta o handler para o botão do HTML
+  window.enviar = enviar;
+
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') enviar();
+  });
+})();
+</script>
+</body>
+</html>

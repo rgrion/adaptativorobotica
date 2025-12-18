@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avaliação Final</title>
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#fff; --primary:#1976d2; --primary-hover:#1565c0;
+      --accent:#64b5f6; --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:var(--bg);margin:0;padding:20px;color:var(--text)}
+    .container{max-width:900px;margin:auto;background:var(--card);padding:30px;border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)}
+    h2{color:var(--primary);margin:0 0 10px}
+    h3{margin-top:18px;color:#0f3660}
+    p{line-height:1.6}
+    .info{background:#f7faff;border-left:4px solid var(--accent);padding:12px;border-radius:6px}
+    .pergunta{margin:20px 0;padding:15px;background:#f7faff;border-left:4px solid var(--accent);border-radius:6px}
+    .pergunta p{margin:0 0 8px}
+    /* Alternativas empilhadas */
+    label{display:block;margin:6px 0}
+    input[type="radio"]{margin-right:8px}
+
+    button{background:var(--primary);color:#fff;border:none;border-radius:6px;padding:12px 24px;font-size:16px;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:15px;font-weight:700;color:#d32f2f}
+    @media (max-width:600px){.container{padding:20px} h2{font-size:1.2em} button{width:100%}}
+
+    /* Barra de carregamento */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📝 Avaliação Final</h2>
+    <div class="info">
+      <p><b>Instruções:</b> Leia cada questão com atenção. Marque <u>apenas uma alternativa</u> por pergunta. Esta avaliação considera os principais conhecimentos práticos e teóricos aprendidos ao longo do curso.</p>
+    </div>
+
+    <form id="quizForm">
+      <!-- 1 -->
+      <div class="pergunta">
+        <p><b>1.</b> O que é um robô, no contexto da robótica educacional?</p>
+        <label><input type="radio" name="q1" value="a"> a) Um brinquedo com LED e buzzer</label>
+        <label><input type="radio" name="q1" value="b"> b) Um dispositivo que apenas simula sons</label>
+        <label><input type="radio" name="q1" value="c"> c) Um sistema que realiza tarefas automaticamente com controle eletrônico e programação</label>
+        <label><input type="radio" name="q1" value="d"> d) Um carrinho com rodas e baterias apenas</label>
+      </div>
+      <!-- 2 -->
+      <div class="pergunta">
+        <p><b>2.</b> Qual é a principal função do resistor no circuito com LED?</p>
+        <label><input type="radio" name="q2" value="a"> a) Aumentar a tensão do circuito</label>
+        <label><input type="radio" name="q2" value="b"> b) Proteger o LED, limitando a corrente elétrica</label>
+        <label><input type="radio" name="q2" value="c"> c) Apagar o LED quando necessário</label>
+        <label><input type="radio" name="q2" value="d"> d) Trocar a cor da luz emitida</label>
+      </div>
+      <!-- 3 -->
+      <div class="pergunta">
+        <p><b>3.</b> Qual pino usamos para detectar se um botão foi pressionado no Arduino?</p>
+        <label><input type="radio" name="q3" value="a"> a) GND</label>
+        <label><input type="radio" name="q3" value="b"> b) A0</label>
+        <label><input type="radio" name="q3" value="c"> c) Um pino digital configurado como entrada (ex: pino 2)</label>
+        <label><input type="radio" name="q3" value="d"> d) 5V</label>
+      </div>
+      <!-- 4 -->
+      <div class="pergunta">
+        <p><b>4.</b> Para que serve a Ponte H (L298N)?</p>
+        <label><input type="radio" name="q4" value="a"> a) Emitir sons</label>
+        <label><input type="radio" name="q4" value="b"> b) Controlar o sentido de rotação de motores DC</label>
+        <label><input type="radio" name="q4" value="c"> c) Ampliar o sinal do sensor</label>
+        <label><input type="radio" name="q4" value="d"> d) Alimentar o Arduino diretamente</label>
+      </div>
+      <!-- 5 -->
+      <div class="pergunta">
+        <p><b>5.</b> O sensor ultrassônico mede:</p>
+        <label><input type="radio" name="q5" value="a"> a) Temperatura do ambiente</label>
+        <label><input type="radio" name="q5" value="b"> b) Luz incidente</label>
+        <label><input type="radio" name="q5" value="c"> c) Distância até um obstáculo</label>
+        <label><input type="radio" name="q5" value="d"> d) Peso de objetos sobre o robô</label>
+      </div>
+      <!-- 6 -->
+      <div class="pergunta">
+        <p><b>6.</b> Por que o Arduino precisa de uma fonte externa para os motores?</p>
+        <label><input type="radio" name="q6" value="a"> a) Porque os motores usam menos energia do que o Arduino</label>
+        <label><input type="radio" name="q6" value="b"> b) Porque o Arduino não fornece corrente suficiente para os motores</label>
+        <label><input type="radio" name="q6" value="c"> c) Para aumentar o tempo de boot do código</label>
+        <label><input type="radio" name="q6" value="d"> d) Para desligar o sensor ultrassônico</label>
+      </div>
+      <!-- 7 -->
+      <div class="pergunta">
+        <p><b>7.</b> Qual estrutura de código usamos para o robô tomar decisões?</p>
+        <label><input type="radio" name="q7" value="a"> a) if/else</label>
+        <label><input type="radio" name="q7" value="b"> b) loop()</label>
+        <label><input type="radio" name="q7" value="c"> c) pinMode()</label>
+        <label><input type="radio" name="q7" value="d"> d) analogWrite()</label>
+      </div>
+      <!-- 8 -->
+      <div class="pergunta">
+        <p><b>8.</b> Qual atitude é mais indicada antes de alterar o código do robô?</p>
+        <label><input type="radio" name="q8" value="a"> a) Apagar tudo e começar do zero</label>
+        <label><input type="radio" name="q8" value="b"> b) Planejar e testar no Tinkercad</label>
+        <label><input type="radio" name="q8" value="c"> c) Colar um código qualquer da internet</label>
+        <label><input type="radio" name="q8" value="d"> d) Esperar o professor montar o código</label>
+      </div>
+      <!-- 9 -->
+      <div class="pergunta">
+        <p><b>9.</b> Um robô sustentável é aquele que:</p>
+        <label><input type="radio" name="q9" value="a"> a) É comprado pronto e testado em laboratório</label>
+        <label><input type="radio" name="q9" value="b"> b) É montado com peças industriais</label>
+        <label><input type="radio" name="q9" value="c"> c) Usa energia solar obrigatoriamente</label>
+        <label><input type="radio" name="q9" value="d"> d) Usa materiais recicláveis e foi pensado com consciência ambiental</label>
+      </div>
+      <!-- 10 -->
+      <div class="pergunta">
+        <p><b>10.</b> Durante a apresentação final, o robô deve:</p>
+        <label><input type="radio" name="q10" value="a"> a) Demonstrar funcionamento real, desvio de obstáculos e uso de materiais reaproveitados</label>
+        <label><input type="radio" name="q10" value="b"> b) Ser decorado com brilho e LEDs</label>
+        <label><input type="radio" name="q10" value="c"> c) Estar desligado para evitar falhas</label>
+        <label><input type="radio" name="q10" value="d"> d) Ser montado apenas com sensores de temperatura</label>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Avaliação</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  let enviando=false, progTimer=null, proximaPaginaDecidida=null;
+
+  // === GABARITO DA AVALIAÇÃO FINAL (10 questões) ===
+  const GABARITO = ['c','b','c','b','c','b','a','b','d','a'];
+
+  function setMsg(t){ const el=document.getElementById('mensagem'); if(el) el.textContent=t||''; }
+  function getChecked(name){
+    const nodes=document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner) return;
+    bar.style.display='block'; inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{ pct=Math.min(100,pct+Math.random()*12+3); inner.style.width=pct+'%'; if(pct>=95){ clearInterval(progTimer); progTimer=null; } },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(inner) inner.style.width='100%';
+  }
+
+  function renderFeedback(resps){
+    const fb=document.getElementById('feedback');
+    if(!fb) return;
+    let acertos=0;
+    const itens = GABARITO.map((correta, i) => {
+      const qid = 'q' + (i+1);
+      const marcada = (resps[i] || '').toLowerCase();
+      const ok = marcada === correta;
+      if (ok) acertos++;
+      return `
+        <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+          <b>${i+1}.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+          <small>Sua: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+        </div>`;
+    }).join('');
+    fb.innerHTML = `
+      <h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>
+      <div style="margin:6px 0 10px 0"><b>Nota local:</b> ${acertos}/10</div>
+      ${itens}
+    `;
+    fb.style.display='block';
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){ setMsg('Aguarde o salvamento para continuar…'); return; }
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Abrindo…'; }
+    document.body.style.cursor='wait';
+
+    google.script.run
+      .withSuccessHandler(function(html){
+        document.open(); document.write(html); document.close();
+      })
+      .withFailureHandler(function(err2){
+        console.error('[AVAL_FINAL] incluir falhou:', err2);
+        setMsg('Falha ao abrir a próxima página. Tente novamente.');
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; btn.onclick=irParaProximo; }
+        document.body.style.cursor='default';
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  function enviar(){
+    if(enviando) return;
+    enviando=true;
+
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
+    setMsg('');
+    document.body.style.cursor='wait';
+
+    const keys=['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'];
+    const respostas=keys.map(getChecked);
+    const faltando=respostas.findIndex(r=>r===null);
+    if(faltando!==-1){
+      setMsg(`❗ Responda todas as perguntas (faltou a nº ${faltando+1}).`);
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Avaliação'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    const codigo=sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Avaliação'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    // 1) mostra gabarito imediato (igual aos tópicos)
+    renderFeedback(respostas);
+
+    // 2) salva e define próxima rota
+    const pacote=[codigo, ...respostas];
+    startLoading();
+
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        let rota=String(proxima||'').replace(/\.html?$/i,'').toLowerCase();
+        const ALLOW=new Set(['ux','finalagradecimento']);
+        if(!ALLOW.has(rota)) rota='ux';
+        proximaPaginaDecidida=rota;
+
+        if(btn){
+          btn.disabled=false;
+          btn.textContent='Ir para o próximo';
+          btn.onclick=irParaProximo;
+        }
+        document.body.style.cursor='default';
+        enviando=false;
+      })
+      .withFailureHandler(function(e){
+        stopLoading();
+        console.error('[AVAL_FINAL] corrigirAvaliacaoFinal falhou:', e);
+        setMsg('Não foi possível enviar sua avaliação agora. Tente novamente.');
+        if(btn){
+          btn.disabled=false;
+          btn.textContent='Enviar Avaliação';
+          btn.onclick=enviar;
+        }
+        document.body.style.cursor='default';
+        enviando=false;
+      })
+      .corrigirAvaliacaoFinal(pacote);
+  }
+
+  // expõe
+  window.enviar=enviar;
+  window.irParaProximo=irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', e=>{ if(e.key==='Enter') enviar(); });
+
+  // helper opcional
+  function goTo(page){
+    const base=window.location.href.split('?')[0];
+    window.location.replace(`${base}?p=${String(page).replace(/\.html?$/,'')}&ts=${Date.now()}`);
+  }
+  window.goTo=goTo;
+})();
+</script>
+</body>
+</html>

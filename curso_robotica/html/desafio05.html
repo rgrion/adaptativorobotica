@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafio 05 – Sensor Ultrassônico</title>
+  <style>
+    :root{
+      --bg:#e3f2fd; --card:#ffffff; --primary:#1976d2;
+      --primary-hover:#1565c0; --accent:#64b5f6; --muted:#f4f7fb; --text:#0d1b2a;
+    }
+    body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:linear-gradient(135deg,#e3f2fd,#bbdefb);margin:0;padding:20px;color:var(--text)}
+    .container{background:var(--card);max-width:900px;margin:auto;padding:30px;border-radius:12px;box-shadow:0 0 15px rgba(13,27,42,.08)}
+    h2{color:var(--primary);margin-bottom:10px}
+    h3{margin-top:20px;color:#0f3660}
+    p{line-height:1.6}
+    ul{padding-left:20px}
+    .info{background:#f7faff;border-left:4px solid var(--accent);padding:12px;border-radius:6px;margin:10px 0}
+    code.inline{background:#eef5ff;padding:2px 6px;border-radius:6px}
+    pre{background:#f7faff;padding:12px;border-radius:6px;border-left:4px solid var(--accent);overflow-x:auto}
+    .pergunta{margin:25px 0;padding:15px;background:#f7faff;border-left:4px solid var(--accent);border-radius:6px}
+    label{display:block;margin:6px 0}
+    button{background:var(--primary);color:#fff;border:none;padding:12px 24px;border-radius:6px;font-size:16px;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    #mensagem{margin-top:15px;color:#d32f2f;font-weight:700}
+    @media (max-width:600px){.container{padding:20px}h2{font-size:1.25em}button{width:100%}}
+    /* Barra de carregamento */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🧠 Desafio 05 – Avançado com Sensor Ultrassônico</h2>
+
+    <h3>📡 Como o sensor mede distância?</h3>
+    <p>O <b>HC-SR04</b> funciona por reflexão de <i>ultrassom</i>:</p>
+    <div class="info">
+      <ul>
+        <li><b>TRIG</b> emite um pulso sonoro (~40 kHz);</li>
+        <li>O som reflete no obstáculo e retorna;</li>
+        <li><b>ECHO</b> capta o retorno;</li>
+        <li>O Arduino mede o <b>tempo</b> entre envio e retorno e calcula a distância.</li>
+      </ul>
+      <p>Fórmula prática: <code class="inline">Distância (cm) = Tempo (μs) / 58</code></p>
+    </div>
+
+    <h3>⏱️ Tempo de resposta e confiabilidade</h3>
+    <div class="info">
+      <ul>
+        <li>Depende da <b>distância</b> e da <b>superfície</b> (lisos refletem melhor que tecidos);</li>
+        <li><b>Ângulo</b> importa: quanto mais perpendicular, mais confiável;</li>
+        <li>Use <code class="inline">delay(100~200)</code> entre leituras para evitar ruído;</li>
+        <li><b>Faixa típica</b>: ~2 cm a ~400 cm — fora disso, pode retornar 0 ou oscilar.</li>
+      </ul>
+    </div>
+
+    <h3>🧱 Limitações técnicas do HC-SR04</h3>
+    <div class="info">
+      <ul>
+        <li>Sensível à <b>temperatura</b> (velocidade do som varia);</li>
+        <li>Superfícies <b>absorventes</b> (espuma/tecido) degradam o retorno;</li>
+        <li><b>Reflexão oblíqua</b> pode “perder” o eco (leituras erradas ou zero);</li>
+        <li>Não “vê” objetos atrás de outros (oclusão);</li>
+        <li>Precisa de tempo entre pulsos para <b>estabilizar</b>.</li>
+      </ul>
+    </div>
+
+    <h3>🧠 Boas práticas</h3>
+    <div class="info">
+      <ul>
+        <li><b>Filtrar</b> leituras (média/média móvel);</li>
+        <li>Definir <b>limiar</b> (ex.: &lt; 20 cm → parar motor);</li>
+        <li>Evitar comandos muito rápidos entre medições.</li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <h2>📝 Questão do Desafio 05</h2>
+    <form id="quizForm">
+      <div class="pergunta">
+        <p><b>1.</b> Durante testes com o HC-SR04, o robô para mesmo sem obstáculo visível à frente. Qual causa técnica plausível explica isso?</p>
+        <label><input type="radio" name="q1" value="a"> a) O sensor está emitindo pulsos com frequência baixa, o que reduz a precisão</label>
+        <label><input type="radio" name="q1" value="b"> b) A superfície à frente está inclinada e o som refletido não retorna ao sensor, gerando leitura zero</label>
+        <label><input type="radio" name="q1" value="c"> c) O LED de status está interferindo na leitura do pino ECHO</label>
+        <label><input type="radio" name="q1" value="d"> d) O Arduino está convertendo a distância em milímetros, e não em centímetros</label>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Resposta</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none;margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  let enviando=false, progTimer=null, proximaPaginaDecidida=null;
+
+  // Gabarito local
+  const GAB = { q1:'b' };
+
+  // Helpers
+  function getChecked(name){
+    const nodes=document.getElementsByName(name);
+    for(const n of nodes) if(n.checked) return n.value;
+    return null;
+  }
+  function setMsg(t){ const el=document.getElementById('mensagem'); if(el) el.textContent=t||''; }
+  function startLoading(){
+    const bar=document.getElementById('loadingBar');
+    const inner=document.getElementById('loadingInner');
+    if(!bar||!inner) return;
+    bar.style.display='block'; inner.style.width='0%';
+    let pct=0;
+    progTimer=setInterval(()=>{
+      pct=Math.min(100,pct+Math.random()*12+3);
+      inner.style.width=pct+'%';
+      if(pct>=95){ clearInterval(progTimer); progTimer=null; }
+    },180);
+  }
+  function stopLoading(){
+    const inner=document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer=null; }
+    if(inner) inner.style.width='100%';
+  }
+
+  function renderFeedback(resps){
+    const fb=document.getElementById('feedback');
+    if(!fb) return;
+    const marcada=resps.q1;
+    const correta=GAB.q1;
+    const ok=marcada===correta;
+
+    fb.innerHTML = `
+      <h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>
+      <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+        <b>1.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+        <small>Sua resposta: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+      </div>
+    `;
+    fb.style.display='block';
+  }
+
+  function irParaProximo(){
+    if(!proximaPaginaDecidida){ setMsg('Aguarde o salvamento para continuar…'); return; }
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Abrindo…'; }
+    document.body.style.cursor='wait';
+
+    google.script.run
+      .withSuccessHandler(function(html){
+        document.open(); document.write(html); document.close();
+      })
+      .withFailureHandler(function(err2){
+        console.error('[DESAFIO05] incluir falhou:', err2);
+        setMsg('Falha ao abrir a próxima página. Tente novamente.');
+        if(btn){ btn.disabled=false; btn.textContent='Ir para o próximo'; btn.onclick=irParaProximo; }
+        document.body.style.cursor='default';
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  function enviar(){
+    if(enviando) return;
+    enviando=true;
+
+    const btn=document.getElementById('btnEnviar');
+    if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
+    setMsg('');
+    document.body.style.cursor='wait';
+
+    const resposta=getChecked('q1');
+    if(!resposta){
+      setMsg('❗ Por favor, selecione uma alternativa.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Resposta'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    const codigo=sessionStorage.getItem('codigo');
+    if(!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if(btn){ btn.disabled=false; btn.textContent='Enviar Resposta'; btn.onclick=enviar; }
+      document.body.style.cursor='default';
+      enviando=false; return;
+    }
+
+    // 1) feedback imediato
+    renderFeedback({ q1:resposta });
+
+    // 2) salva e define rota (sempre avaliacaofinal)
+    const pacote=[codigo, resposta];
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        let rota = String(proxima||'').replace(/\.html?$/i,'').toLowerCase();
+        if(rota!=='avaliacaofinal') rota='avaliacaofinal';   // whitelist rígida
+        proximaPaginaDecidida = rota;
+
+        if(btn){
+          btn.disabled=false;
+          btn.textContent='Ir para o próximo';
+          btn.onclick=irParaProximo;                         /* troca handler */
+        }
+        document.body.style.cursor='default';
+        enviando=false;
+      })
+      .withFailureHandler(function(err){
+        stopLoading();
+        console.error('[DESAFIO05] corrigirDesafio05 falhou:', err);
+        setMsg('Não foi possível enviar sua resposta agora. Tente novamente.');
+        if(btn){
+          btn.disabled=false;
+          btn.textContent='Enviar Resposta';
+          btn.onclick=enviar;                                /* volta ao fluxo original */
+        }
+        document.body.style.cursor='default';
+        enviando=false;
+      })
+      .corrigirDesafio05(pacote);
+  }
+
+  // expõe
+  window.enviar=enviar;
+  window.irParaProximo=irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', e=>{ if(e.key==='Enter') enviar(); });
+
+  // helper opcional
+  function goTo(page){
+    const base = window.location.href.split('?')[0];
+    window.location.replace(`${base}?p=${String(page).replace(/\.html?$/,'')}&ts=${Date.now()}`);
+  }
+  window.goTo = goTo;
+})();
+</script>
+</body>
+</html>

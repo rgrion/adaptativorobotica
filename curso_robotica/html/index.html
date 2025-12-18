@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Curso de Robótica Sustentável</title>
+  <style>
+    :root {
+      --bg: #e3f2fd;
+      --card: #ffffff;
+      --primary: #1976d2;
+      --primary-hover: #1565c0;
+      --accent: #64b5f6;
+      --muted: #f4f7fb;
+      --text: #0d1b2a;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(270deg, #e3f2fd, #bbdefb);
+      background-size: 400% 400%;
+      animation: gradientAnim 12s ease infinite;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: var(--text);
+    }
+
+    @keyframes gradientAnim {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: var(--card);
+      text-align: center;
+      max-width: 700px;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    .emoji {
+      font-size: 3em;
+      animation: pulse 1.8s infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      font-size: 1.1em;
+      width: 100%;
+      max-width: 200px;
+      margin: 10px auto 20px auto;
+      display: block;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-align: center;
+      letter-spacing: 5px;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      font-size: 1.1em;
+      padding: 14px 30px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+      transform: scale(1.05);
+    }
+
+    #mensagem {
+      color: red;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    /* Barra de carregamento (mesma dos tópicos) */
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+
+    @media (max-width: 600px) {
+      .container { padding: 25px; }
+      h1 { font-size: 1.5em; }
+      p { font-size: 1em; }
+      button { width: 100%; font-size: 1em; }
+      .emoji { font-size: 2.5em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emoji">🤖</div>
+    <h1>Bem-vindo ao Mini Curso de Robótica!</h1>
+    <p>Aprenda a montar e programar robôs com Arduino de forma prática, divertida e adaptativa.</p>
+    <p>Digite seu código de acesso (5 dígitos):</p>
+    <input type="text" id="codigo" maxlength="5" placeholder="00000">
+    <button id="btnStart" onclick="startCurso()">Começar Curso</button>
+    <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+    <div id="mensagem"></div>
+  </div>
+
+<script>
+(function(){
+  let enviando = false;
+
+  function startCurso() {
+    if (enviando) return;
+    enviando = true;
+
+    const input = document.getElementById("codigo");
+    const msg   = document.getElementById("mensagem");
+    const btn   = document.getElementById("btnStart");
+    const codigo = (input && input.value ? input.value : '').trim();
+
+    if (!/^\d{5}$/.test(codigo)) {
+      if (msg) msg.innerText = "Digite um código válido de 5 números.";
+      enviando = false;
+      return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'carregando...'; }
+    document.body.style.cursor = 'wait';
+    if (msg) msg.textContent = '';
+
+    try { sessionStorage.setItem("codigo", codigo); } catch (_) {}
+
+    // Primeiro tenta verificar se já existe progresso salvo
+    google.script.run
+      .withSuccessHandler(function(destino) {
+        destino = String(destino || 'introducao').trim().replace(/\.html?$/i, '') + '.html';
+        console.log('→ redirecionando para:', destino);
+
+        google.script.run
+          .withSuccessHandler(function(html) {
+            if (btn) { btn.disabled = false; btn.textContent = 'Começar Curso'; }
+            document.body.style.cursor = 'default';
+            document.open(); document.write(html); document.close();
+          })
+          .withFailureHandler(function(err2) {
+            console.error('Falha ao incluir página:', err2);
+            if (msg) msg.innerText = "Não consegui abrir a próxima página. Tente novamente.";
+            if (btn) { btn.disabled = false; btn.textContent = 'Começar Curso'; }
+            document.body.style.cursor = 'default';
+            enviando = false;
+          })
+          .incluir(destino);
+      })
+      .withFailureHandler(function(err1) {
+        console.error('verificarAluno falhou, usando fallback bootstrapAluno:', err1);
+        // fallback: se falhar, cria novo registro
+        google.script.run
+          .withSuccessHandler(function(destino){
+            destino = String(destino || 'introducao').trim().replace(/\.html?$/i,'') + '.html';
+            google.script.run
+              .withSuccessHandler(function(html){
+                document.open(); document.write(html); document.close();
+              })
+              .incluir(destino);
+          })
+          .bootstrapAluno(codigo, 'introducao.html');
+      })
+      .verificarAluno(codigo);
+  } // <-- ESTA CHAVE estava faltando!!
+
+  // exporta apenas o que o HTML usa
+  window.startCurso = startCurso;
+
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') startCurso();
+  });
+})();
+</script>
+
+</body>
+</html>

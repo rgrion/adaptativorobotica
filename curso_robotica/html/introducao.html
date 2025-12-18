@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Introdução ao Curso</title>
+  <style>
+    :root {
+      --bg: #e3f2fd;
+      --card: #ffffff;
+      --primary: #1976d2;
+      --primary-hover: #1565c0;
+      --accent: #64b5f6;
+      --text: #0d1b2a;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      margin: 0; padding: 0;
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; color: var(--text);
+    }
+    .container {
+      background: var(--card);
+      padding: 40px; max-width: 800px; border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      animation: fadeIn 0.8s ease; text-align: center;
+    }
+    h1 { color: var(--primary); font-size: 1.8em; margin-bottom: 20px; }
+    p { font-size: 1.1em; line-height: 1.6; margin-bottom: 15px; }
+    button {
+      background-color: var(--primary); color: white; font-size: 1.1em;
+      padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer;
+      margin-top: 20px; transition: background-color .3s, transform .2s;
+    }
+    button:hover { background-color: var(--primary-hover); transform: scale(1.05); }
+    .loadingbar{display:none;width:100%;background:#e0e0e0;border-radius:8px;overflow:hidden;height:10px;margin-top:12px}
+    .loadingbar>.inner{width:0%;height:100%;background:var(--primary);transition:width .2s linear}
+    @keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+    @media (max-width: 600px) {
+      .container { padding: 25px; }
+      h1 { font-size: 1.4em; }
+      p { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 Bem-vindo ao Mini Curso de Robótica!</h1>
+
+    <p>Este curso foi criado para mostrar como a <strong>robótica</strong> pode ser aplicada de forma acessível e prática, utilizando <b>Arduino</b></b>.</p>
+
+    <p>A robótica conecta ciência, tecnologia, engenharia e matemática (STEM) de uma maneira divertida e transformadora, incentivando a criatividade e o raciocínio lógico.</p>
+
+    <p>Ao longo das aulas, você aprenderá a:</p>
+    <ul style="text-align:left; max-width:600px; margin: 0 auto 20px auto;">
+      <li>Montar circuitos no <b>Tinkercad</b> e transferir para o Arduino real;</li>
+      <li>Programar LEDs, buzzers, sensores e motores;</li>
+      <li>Construir um protótipo funcional.</li>
+    </ul>
+
+    <button id="btnNext" onclick="irParaDiagnostico()">Começar!</button>
+    <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+    <p id="mensagem"></p>
+  </div> <!-- FECHA .container -->
+
+<script>
+(function(){
+  let __timer = null;
+  function startLoading(){
+    const bar = document.getElementById('loadingBar');
+    const inner = document.getElementById('loadingInner');
+    if(!bar || !inner) return;
+    bar.style.display = 'block';
+    inner.style.width = '0%';
+    let pct = 0;
+    __timer = setInterval(()=>{
+      pct = Math.min(100, pct + 10);
+      inner.style.width = pct + '%';
+      if(pct >= 95){ clearInterval(__timer); __timer = null; }
+    }, 150);
+  }
+  function stopLoading(){
+    const bar = document.getElementById('loadingBar');
+    const inner = document.getElementById('loadingInner');
+    if(__timer){ clearInterval(__timer); __timer = null; }
+    if(inner) inner.style.width = '100%';
+    setTimeout(()=>{ if(bar) bar.style.display = 'none'; }, 250);
+  }
+
+  function render(page){
+    const destino = String(page).replace(/\.html?$/,'') + '.html';
+    const btn = document.getElementById('btnNext') || document.querySelector('button');
+    if (btn){ btn.disabled = true; btn.textContent = 'carregando...'; }
+    document.body.style.cursor = 'wait';
+
+    google.script.run
+      .withSuccessHandler(function(html){
+        document.body.style.cursor = 'default';
+        document.open(); document.write(html); document.close();
+      })
+      .withFailureHandler(function(e){
+        console.error('Falha ao incluir página:', e);
+        if (btn){ btn.disabled = false; btn.textContent = 'Começar!'; }
+        document.body.style.cursor = 'default';
+        stopLoading();
+        const msg = document.getElementById('mensagem');
+        if (msg) msg.textContent = 'Não foi possível abrir a próxima página. Tente novamente.';
+      })
+      .incluir(destino);
+  }
+
+  function irParaDiagnostico(){
+    startLoading();
+    render('diagnostico');
+  }
+
+  // exporta só o handler do botão
+  window.irParaDiagnostico = irParaDiagnostico;
+
+  window.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      irParaDiagnostico();
+    }
+  });
+})();
+</script>
+</body>
+</html>

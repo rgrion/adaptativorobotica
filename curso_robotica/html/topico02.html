@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{
+      --bg: #e3f2fd;
+      --card: #ffffff;
+      --primary: #1976d2;
+      --primary-hover:#1565c0;
+      --accent:#64b5f6;
+      --muted:#f4f7fb;
+      --text:#0d1b2a;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+      background: var(--bg);
+      padding: 20px;
+      margin: 0;
+      color: var(--text);
+    }
+    .container {
+      background: var(--card);
+      max-width: 900px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(13,27,42,0.08);
+    }
+    h2 { color: var(--primary); margin-bottom: 10px; }
+    h3 { margin-top: 20px; color: #0f3660; }
+    pre {
+      background: var(--muted);
+      padding: 12px;
+      border-left: 4px solid var(--accent);
+      overflow-x: auto;
+      border-radius: 6px;
+    }
+    ul { padding-left: 20px; }
+    .pergunta {
+      margin: 25px 0;
+      padding: 15px;
+      background: #f7faff;
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+    }
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: var(--primary-hover); }
+    input[type="radio"] { margin-right: 8px; }
+    #mensagem { margin-top: 15px; color: #d32f2f; font-weight: bold; }
+    @media (max-width: 600px) {
+      .container { padding: 20px; }
+      h2 { font-size: 1.25em; }
+      button { width: 100%; }
+    }
+    /* Barra de carregamento (mínima, sem alterar layout existente) */
+    .loadingbar {
+      display: none;
+      width: 100%;
+      background: #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 10px;
+      margin-top: 12px;
+    }
+    .loadingbar > .inner {
+      width: 0%;
+      height: 100%;
+      background: var(--primary);
+      transition: width .2s linear;
+    }
+    .hint {
+      margin-top: 8px;
+      color: #455a64;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Tópico -->
+    <h2>🧩 Tópico 02 – Montando o Primeiro Circuito com LED</h2>
+
+    <h3>💡 O que vamos aprender nesta aula?</h3>
+    <p>Chegou a hora de colocar a mão na massa! Neste tópico, você dará os primeiros passos na montagem de circuitos, começando com um experimento clássico: fazer um LED piscar com o Arduino. Vamos usar o Tinkercad para simular e, em seguida, transferir o código para o Arduino físico, montando tudo com os componentes reais.</p>
+
+    <p>Você aprenderá:</p>
+    <ul>
+      <li>A identificar e conectar os componentes;</li>
+      <li>A montar circuitos simples com segurança;</li>
+      <li>A programar o Arduino com blocos e código textual;</li>
+      <li>A transferir o programa do simulador para o mundo real.</li>
+    </ul>
+
+    <p>Essa prática é fundamental para compreender como hardware e software se integram na robótica educacional.</p>
+
+    <h3>🔌 Conhecendo os componentes</h3>
+    <ul>
+      <li><b>LED (Diodo Emissor de Luz)</b>: Acende ao receber corrente. Tem polaridade (lado positivo e negativo).</li>
+      <li><b>Resistor (220 ohms)</b>: Limita a corrente elétrica, evitando que o LED queime.</li>
+      <li><b>Protoboard</b>: Placa para montagem de circuitos, sem necessidade de solda.</li>
+      <li><b>Fios jumpers</b>: Conectam os componentes entre si.</li>
+      <li><b>Arduino UNO</b>: Placa controladora que envia os comandos ao circuito.</li>
+      <li><b>Cabo USB</b>: Serve para alimentar e programar o Arduino.</li>
+      <li><b>Arduino IDE</b>: Programa no computador usado para escrever e enviar o código.</li>
+    </ul>
+
+    <p><b>🔎 Dica:</b> sempre use um resistor com o LED para proteger o circuito.</p>
+
+    <h3>🛠️ Etapa 1 – Montando no Tinkercad</h3>
+    <ol>
+      <li>Acesse o site: <a href="https://www.tinkercad.com" target="_blank">https://www.tinkercad.com</a></li>
+      <li>Clique em “Criar novo circuito”</li>
+      <li>Adicione os seguintes componentes:
+        <ul>
+          <li>1x Protoboard (meia placa)</li>
+          <li>1x LED</li>
+          <li>1x Resistor de 220 ohms</li>
+          <li>1x Arduino UNO</li>
+          <li>2x Fios de conexão</li>
+        </ul>
+      </li>
+      <li>Monte conforme o esquema:
+        <br>Pino 13 do Arduino → lado positivo do LED
+        <br>Lado negativo do LED → resistor de 220 ohms → GND (terra) do Arduino
+      </li>
+    </ol>
+
+    <h3>🧾 Código em C++</h3>
+    <pre>
+void setup() {
+  pinMode(13, OUTPUT); // define pino 13 como saída
+}
+
+void loop() {
+  digitalWrite(13, HIGH); // liga o LED
+  delay(1000);            // espera 1 segundo
+  digitalWrite(13, LOW);  // desliga o LED
+  delay(1000);            // espera 1 segundo
+}
+    </pre>
+
+    <h3>🧩 Código com blocos</h3>
+    <ul>
+      <li>“Definir pino 13 como saída”</li>
+      <li>“Ligar pino 13”</li>
+      <li>“Esperar 1 segundo”</li>
+      <li>“Desligar pino 13”</li>
+      <li>“Esperar 1 segundo”</li>
+    </ul>
+
+    <p>➡️ Clique em “Iniciar Simulação”: você verá o LED piscar a cada segundo.</p>
+
+    <h3>🔁 Etapa 2 – Copiando o código para o Arduino físico</h3>
+    <ol>
+      <li>No Tinkercad, clique em “Código”</li>
+      <li>Troque de “Blocos” para “Texto”</li>
+      <li>Copie o código (Ctrl+C)</li>
+      <li>Abra o Arduino IDE</li>
+      <li>Cole o código (Ctrl+V)</li>
+      <li>Conecte o Arduino ao computador com o cabo USB</li>
+      <li>Monte o circuito físico igual ao da simulação</li>
+      <li>Clique em “Enviar” no Arduino IDE → O LED piscará de verdade! 🎉</li>
+    </ol>
+
+    <h3>🧰 Se algo der errado...</h3>
+    <ul>
+      <li>O lado maior do LED deve estar conectado ao pino 13 (positivo).</li>
+      <li>O resistor deve estar em série com o LED, indo até o GND.</li>
+      <li>Os fios precisam estar bem conectados.</li>
+      <li>Verifique a porta/placa correta no Arduino IDE.</li>
+    </ul>
+
+    <hr>
+
+    <!-- Quiz -->
+    <h2>📝 Quiz do Tópico 02</h2>
+    <form id="quizForm">
+
+      <div class="pergunta">
+        <p><b>1.</b> Qual a função do resistor no circuito com LED?</p>
+        <label><input type="radio" name="q1" value="a"> a) Aumentar a velocidade do LED</label><br>
+        <label><input type="radio" name="q1" value="b"> b) Diminuir a corrente elétrica e proteger o LED</label><br>
+        <label><input type="radio" name="q1" value="c"> c) Fazer o LED mudar de cor</label><br>
+        <label><input type="radio" name="q1" value="d"> d) Ligar o LED automaticamente</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>2.</b> O que acontece se o LED for conectado com os terminais invertidos no circuito?</p>
+        <label><input type="radio" name="q2" value="a"> a) O LED acende com brilho mais forte</label><br>
+        <label><input type="radio" name="q2" value="b"> b) O LED queima imediatamente</label><br>
+        <label><input type="radio" name="q2" value="c"> c) O LED não conduz corrente e permanece apagado</label><br>
+        <label><input type="radio" name="q2" value="d"> d) O Arduino reinicia automaticamente</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>3.</b> O que devemos fazer após simular o circuito no Tinkercad?</p>
+        <label><input type="radio" name="q3" value="a"> a) Imprimir o circuito</label><br>
+        <label><input type="radio" name="q3" value="b"> b) Esperar o professor montar</label><br>
+        <label><input type="radio" name="q3" value="c"> c) Ligar o LED direto na tomada</label><br>
+        <label><input type="radio" name="q3" value="d"> d) Copiar o código e montar o circuito real com o Arduino físico</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>4.</b> Qual componente garante que o circuito com LED funcione sem risco de queimar o componente?</p>
+        <label><input type="radio" name="q4" value="a"> a) O fio jumper</label><br>
+        <label><input type="radio" name="q4" value="b"> b) O resistor</label><br>
+        <label><input type="radio" name="q4" value="c"> c) A protoboard</label><br>
+        <label><input type="radio" name="q4" value="d"> d) O cabo USB</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>5.</b> Por que o uso do Tinkercad é importante antes da montagem física do circuito?</p>
+        <label><input type="radio" name="q5" value="a"> a) Porque ele substitui totalmente o Arduino físico</label><br>
+        <label><input type="radio" name="q5" value="b"> b) Porque permite testar o circuito e corrigir erros com segurança</label><br>
+        <label><input type="radio" name="q5" value="c"> c) Porque é obrigatório para publicar o projeto</label><br>
+        <label><input type="radio" name="q5" value="d"> d) Porque reduz o brilho do LED e economiza energia</label>
+      </div>
+
+      <div class="pergunta">
+        <p><b>Dificuldade percebida</b> (1 = muito fácil · 5 = muito difícil)</p>
+        <label><input type="radio" name="dif" value="1"> 1</label>
+        <label><input type="radio" name="dif" value="2"> 2</label>
+        <label><input type="radio" name="dif" value="3"> 3</label>
+        <label><input type="radio" name="dif" value="4"> 4</label>
+        <label><input type="radio" name="dif" value="5"> 5</label>
+        <div class="hint">Marque como você percebeu a dificuldade deste tópico.</div>
+      </div>
+
+      <div class="pergunta">
+        <p><b>Autoconfiança</b> (1 = nada confiante · 5 = muito confiante)</p>
+        <label><input type="radio" name="auto" value="1"> 1</label>
+        <label><input type="radio" name="auto" value="2"> 2</label>
+        <label><input type="radio" name="auto" value="3"> 3</label>
+        <label><input type="radio" name="auto" value="4"> 4</label>
+        <label><input type="radio" name="auto" value="5"> 5</label>
+        <div class="hint">Como você se sente para seguir para o próximo passo?</div>
+      </div>
+
+      <button type="button" id="btnEnviar" onclick="enviar()">Enviar Respostas</button>
+      <div class="loadingbar" id="loadingBar"><div class="inner" id="loadingInner"></div></div>
+      <div id="feedback" style="display:none; margin-top:14px"></div>
+      <p id="mensagem"></p>
+    </form>
+  </div>
+
+<script>
+(function(){
+  // ===== Estado =====
+  let enviando = false;
+  let progTimer = null;
+  let proximaPaginaDecidida = null;
+
+  // ===== Gabarito do Tópico 02 =====
+  const GAB = { q1:'b', q2:'c', q3:'d', q4:'b', q5:'b' };
+
+  // ===== Helpers =====
+  function getChecked(name){
+    const nodes = document.getElementsByName(name);
+    for (const n of nodes) if (n.checked) return n.value;
+    return null;
+  }
+  function startLoading(){
+    const bar = document.getElementById('loadingBar');
+    const inner = document.getElementById('loadingInner');
+    if(!bar || !inner) return;
+    bar.style.display = 'block';
+    inner.style.width = '0%';
+    let pct = 0;
+    progTimer = setInterval(()=>{
+      pct = Math.min(100, pct + Math.random()*12 + 3);
+      inner.style.width = pct + '%';
+      if(pct >= 95){ clearInterval(progTimer); progTimer = null; }
+    }, 180);
+  }
+  function stopLoading(){
+    const inner = document.getElementById('loadingInner');
+    if(progTimer){ clearInterval(progTimer); progTimer = null; }
+    if(inner) inner.style.width = '100%';
+  }
+  function setMsg(t){ const el = document.getElementById('mensagem'); if(el) el.textContent = t || ''; }
+
+  function renderFeedback(resps){
+    const fb = document.getElementById('feedback');
+    if(!fb) return;
+    const itens = ['q1','q2','q3','q4','q5'].map((qid,i)=>{
+      const marcada = resps[qid];
+      const correta = GAB[qid];
+      const ok = marcada === correta;
+      return `
+        <div style="padding:10px;border-left:4px solid ${ok?'#2e7d32':'#d32f2f'};background:#f7faff;border-radius:6px;margin:8px 0">
+          <b>${i+1}.</b> ${ok?'✅ Acertou':'❌ Errou'}<br>
+          <small>Sua: <b>${(marcada||'-').toUpperCase()}</b> · Correta: <b>${correta.toUpperCase()}</b></small>
+        </div>`;
+    }).join('');
+    fb.innerHTML = `<h3 style="margin:8px 0 4px 0;color:#0f3660">Gabarito</h3>${itens}`;
+    fb.style.display = 'block';
+  }
+
+  // ===== Enviar (primeiro clique) =====
+  function enviar(){
+    if (enviando) return;
+    enviando = true;
+
+    const btn = document.getElementById('btnEnviar');
+    if (btn){ btn.disabled = true; btn.textContent = 'Enviando...'; }
+    setMsg('');
+
+    // coleta quiz
+    const respostas = {
+      q1:getChecked('q1'), q2:getChecked('q2'), q3:getChecked('q3'),
+      q4:getChecked('q4'), q5:getChecked('q5'),
+      dif:getChecked('dif'), auto:getChecked('auto')
+    };
+    if (!respostas.q1 || !respostas.q2 || !respostas.q3 || !respostas.q4 || !respostas.q5){
+      setMsg('❗ Por favor, responda todas as perguntas antes de continuar.');
+      if (btn){ btn.disabled = false; btn.textContent = 'Enviar Respostas'; }
+      enviando = false; return;
+    }
+    if (!respostas.dif || !respostas.auto){
+      setMsg('❗ Marque também Dificuldade percebida e Autoconfiança (1–5).');
+      if (btn){ btn.disabled = false; btn.textContent = 'Enviar Respostas'; }
+      enviando = false; return;
+    }
+
+    const codigo = sessionStorage.getItem('codigo');
+    if (!/^\d{5}$/.test(String(codigo||''))){
+      setMsg('⚠️ Código do aluno não encontrado. Volte à tela inicial.');
+      if (btn){ btn.disabled = false; btn.textContent = 'Enviar Respostas'; }
+      enviando = false; return;
+    }
+
+    // 1) Feedback local
+    renderFeedback(respostas);
+
+    // 2) Salva no backend e pega rota (sem navegar)
+    const pacote = [codigo, respostas.q1, respostas.q2, respostas.q3, respostas.q4, respostas.q5, Number(respostas.dif), Number(respostas.auto)];
+    startLoading();
+    google.script.run
+      .withSuccessHandler(function(proxima){
+        stopLoading();
+        proximaPaginaDecidida = String(proxima||'').replace(/\.html?$/i,'') || 'topico03';
+        // Transformar MESMO botão em "Ir para o próximo"
+        if (btn){
+          btn.disabled = false;
+          btn.textContent = 'Ir para o próximo';
+          btn.onclick = irParaProximo;
+        }
+        enviando = false;
+      })
+      .withFailureHandler(function(e){
+        stopLoading();
+        console.error(e);
+        setMsg('Não foi possível enviar suas respostas agora. Tente novamente.');
+        if (btn){
+          btn.disabled = false;
+          btn.textContent = 'Enviar Respostas';
+          btn.onclick = enviar;
+        }
+        enviando = false;
+      })
+      .corrigirQuiz02(pacote);
+  }
+
+  // ===== Próxima página (segundo clique do mesmo botão) =====
+  function irParaProximo(){
+    if (!proximaPaginaDecidida){
+      setMsg('Aguarde o salvamento para continuar...');
+      return;
+    }
+    const btn = document.getElementById('btnEnviar');
+    if (btn){ btn.disabled = true; btn.textContent = 'abrindo...'; }
+    google.script.run
+      .withSuccessHandler(function(html){
+        document.open(); document.write(html); document.close();
+      })
+      .withFailureHandler(function(e){
+        console.error(e);
+        setMsg('Falha ao abrir a próxima página.');
+        if (btn){ btn.disabled = false; btn.textContent = 'Ir para o próximo'; }
+      })
+      .incluir(proximaPaginaDecidida);
+  }
+
+  // expõe handlers
+  window.enviar = enviar;
+  window.irParaProximo = irParaProximo;
+
+  // Enter envia
+  window.addEventListener('keydown', e => { if(e.key==='Enter') enviar(); });
+
+  // helper opcional
+  function goTo(page){
+    const base = window.location.href.split('?')[0];
+    window.location.replace(`${base}?p=${String(page).replace(/\.html?$/,'')}&ts=${Date.now()}`);
+  }
+  window.goTo = goTo;
+})();
+</script>
+
+</body>
+</html>
