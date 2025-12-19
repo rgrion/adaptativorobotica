@@ -4,7 +4,7 @@
 
 ---
 
-## 📄 Descrição Geral do Artigo
+## Descrição Geral do Artigo
 
 Este repositório reúne os **artefatos computacionais e educacionais** associados ao estudo **“Aplicação e Avaliação de um Sistema Adaptativo Baseado em Lógica Fuzzy para o Ensino de Robótica com Arduino”**.
 
@@ -12,7 +12,7 @@ O trabalho apresenta o **desenho, implementação e avaliação** de um sistema 
 
 ---
 
-## 🎯 Objetivo do Recurso Educacional
+## Objetivo do Recurso Educacional
 
 O recurso educacional tem como objetivo:
 
@@ -23,7 +23,7 @@ O recurso educacional tem como objetivo:
 
 ---
 
-## 🧠 Fundamentos Teóricos
+## Fundamentos Teóricos
 
 O sistema está fundamentado em:
 
@@ -37,7 +37,7 @@ Esses fundamentos são discutidos e referenciados no corpo do estudo.
 
 ---
 
-## 🏗️ Arquitetura do Sistema
+## Arquitetura do Sistema
 
 O sistema é composto por três camadas principais:
 
@@ -63,7 +63,7 @@ Todo o sistema é executado no ecossistema do **Google Workspace**, sem dependê
 
 ---
 
-## 📦 Conteúdo do Repositório
+## Conteúdo do Repositório
 
 O repositório contém:
 
@@ -76,7 +76,7 @@ Este **README do artigo** tem caráter **descritivo e científico**, enquanto o 
 
 ---
 
-## 🔬 Metodologia de Avaliação
+## Metodologia de Avaliação
 
 Conforme descrito no artigo, o sistema foi avaliado por meio de:
 
@@ -90,7 +90,7 @@ Os dados coletados são anonimizados e tratados de acordo com princípios ético
 
 ---
 
-## 🔁 Reprodutibilidade Científica
+## Reprodutibilidade Científica
 
 Com o objetivo de atender a boas práticas de **Ciência Aberta**, este repositório disponibiliza os artefatos necessários para:
 
@@ -102,7 +102,7 @@ O passo a passo completo de reprodução encontra-se no **README técnico** do p
 
 ---
 
-## 🤖 Uso de Inteligência Artificial
+## Uso de Inteligência Artificial
 
 O sistema utiliza **lógica fuzzy** como técnica de Inteligência Artificial para:
 
@@ -114,7 +114,7 @@ O uso de IA é transparente, interpretável e alinhado às diretrizes éticas pa
 
 ---
 
-## ⚖️ Aspectos Éticos
+## Aspectos Éticos
 
 A aplicação do sistema respeita:
 
@@ -126,13 +126,13 @@ Detalhes adicionais são apresentados na seção de Considerações Éticas do a
 
 ---
 
-## 📜 Licença
+## Licença
 
 Os artefatos disponibilizados neste repositório estão licenciados sob **Creative Commons CC BY 4.0**, permitindo uso, adaptação e redistribuição, desde que citada a autoria.
 
 ---
 
-## 📌 Observação Importante
+## Observação Importante
 
 Este repositório **não substitui o estudo científico**, mas o complementa como **material de apoio, reprodutibilidade e transparência metodológica**.
 
