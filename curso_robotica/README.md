@@ -1,4 +1,7 @@
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-blue.svg)](https://creativecommons.org/licenses/by/4.0/)
+![HTML5](https://img.shields.io/badge/HTML5-Markup-orange)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
+![Status](https://img.shields.io/badge/Status-Concluído-brightgreen)
 
 # Curso Adaptativo de Robótica com Arduino
 
